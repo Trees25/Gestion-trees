@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { useDocumento } from "../hooks/useDocument";
-import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 
@@ -42,12 +41,17 @@ export default function Recibo() {
   const generarPDF = () => {
     const doc = new jsPDF();
     let y = 20;
+    const img = new Image();
+    img.src = "/assets/logo.png"; // desde public/assets
+
+     img.onload = () => {
+      let y = 30;
 
     doc.setFontSize(16);
     doc.text(`RECIBO Nº ${contador}`, 10, 10);
     doc.setFontSize(12);
     doc.text(`Fecha: ${new Date(fecha).toLocaleDateString()}`, 10, 16);
-    doc.addImage(logo, "PNG", 150, 5, 40, 20);
+    doc.addImage(img, "PNG", 150, 5, 40, 20);
 
     doc.text(`Recibí de: ${cliente}`, 10, y);
     y += 10;
@@ -77,6 +81,7 @@ export default function Recibo() {
 
     return doc;
   };
+  };
 
   const verPDF = () => {
     const doc = generarPDF();
@@ -104,7 +109,7 @@ export default function Recibo() {
       <Header />
     <div className="container mt-4">
       <div className="mb-3">
-        <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/")}>Inicio</button>
+        <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/admin")}>Inicio</button>
         <button className="btn btn-outline-secondary" onClick={() => navigate("/resumen")}>Ir a Resumen</button>
       </div>
 

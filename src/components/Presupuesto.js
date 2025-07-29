@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { useDocumento } from "../hooks/useDocument";
-import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 
@@ -38,7 +37,9 @@ export default function Presupuesto() {
         alias: extra.alias || "",
         beneficiario: extra.beneficiario || "",
         dni: extra.dni || "",
-        filas: Array.isArray(filasGuardadas) ? filasGuardadas : [{ descripcion: "", cantidad: 1, precio: 0 }]
+        filas: Array.isArray(filasGuardadas)
+          ? filasGuardadas
+          : [{ descripcion: "", cantidad: 1, precio: 0 }],
       };
       cargarDocumento(docParaEditar);
 
@@ -55,73 +56,78 @@ export default function Presupuesto() {
 
   const cuentasGuardadas = [
     { alias: "nico.andreolli.lemon", beneficiario: "Franco Nicolas Andreolli", dni: "42163028" },
-    { alias: "porton.fila.tela", beneficiario: "Mondre Varas Juan", dni: "41909198" }
+    { alias: "porton.fila.tela", beneficiario: "Mondre Varas Juan", dni: "41909198" },
   ];
 
   const descargarPDF = () => {
     const doc = new jsPDF();
-    let y = 30;
+    const img = new Image();
+    img.src = "/assets/logo.png"; // desde public/assets
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(`PRESUPUESTO`, 10, 10);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(12);
-    doc.text(`N°: ${contador}`, 10, 16);
-    doc.text(`Fecha: ${new Date(fecha).toLocaleDateString()}`, 10, 22);
-    doc.addImage(logo, "PNG", 150, 5, 40, 20);
+    img.onload = () => {
+      let y = 30;
 
-    y += 10;
-    doc.text(`Cliente: ${cliente}`, 10, y);
-    y += 10;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Cantidad", 10, y);
-    doc.text("Tipo", 35, y);
-    doc.text("Descripción", 70, y);
-    doc.text("Precio", 180, y, { align: "right" });
-    doc.line(10, y + 1, 200, y + 1);
-    y += 6;
-
-    filas.forEach(({ descripcion, cantidad, precio, tipo }) => {
-      if (!descripcion.trim()) return;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text(`PRESUPUESTO`, 10, 10);
       doc.setFont("helvetica", "normal");
-      doc.rect(9, y - 4.5, 192, 6, "S");
-      doc.text(cantidad.toString(), 10, y);
-      doc.text(tipo || "-", 35, y);
-      doc.text(descripcion, 70, y);
-      doc.text(`$${parseFloat(precio).toFixed(2)}`, 180, y, { align: "right" });
+      doc.setFontSize(12);
+      doc.text(`N°: ${contador}`, 10, 16);
+      doc.text(`Fecha: ${new Date(fecha).toLocaleDateString()}`, 10, 22);
+      doc.addImage(img, "PNG", 150, 5, 40, 20);
+
+      y += 10;
+      doc.text(`Cliente: ${cliente}`, 10, y);
+      y += 10;
+
+      doc.setFont("helvetica", "bold");
+      doc.text("Cantidad", 10, y);
+      doc.text("Tipo", 35, y);
+      doc.text("Descripción", 70, y);
+      doc.text("Precio", 180, y, { align: "right" });
+      doc.line(10, y + 1, 200, y + 1);
       y += 6;
-    });
 
-    y += 10;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(14);
-    doc.text(`TOTAL: $${calcularTotal().toFixed(2)}`, 10, y);
+      filas.forEach(({ descripcion, cantidad, precio, tipo }) => {
+        if (!descripcion.trim()) return;
+        doc.setFont("helvetica", "normal");
+        doc.rect(9, y - 4.5, 192, 6, "S");
+        doc.text(cantidad.toString(), 10, y);
+        doc.text(tipo || "-", 35, y);
+        doc.text(descripcion, 70, y);
+        doc.text(`$${parseFloat(precio).toFixed(2)}`, 180, y, { align: "right" });
+        y += 6;
+      });
 
-    y += 10;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "italic");
-    doc.text("* Una vez aceptado el presupuesto, se debe abonar el 50% del total.", 10, y);
+      y += 10;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text(`TOTAL: $${calcularTotal().toFixed(2)}`, 10, y);
 
-    y += 10;
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("DATOS DE CONTACTO", 10, y);
-    doc.text("INFORMACIÓN PARA EL PAGO", 100, y);
-    y += 6;
+      y += 10;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "italic");
+      doc.text("* Una vez aceptado el presupuesto, se debe abonar el 50% del total.", 10, y);
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text("trees.sanjuan@gmail.com", 10, y);
-    doc.text(`Alias: ${alias}`, 100, y);
-    y += 6;
-    doc.text("+54 264-5851326", 10, y);
-    doc.text(`Beneficiario: ${beneficiario}`, 100, y);
-    y += 6;
-    doc.text(`DNI: ${dni}`, 100, y);
+      y += 10;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text("DATOS DE CONTACTO", 10, y);
+      doc.text("INFORMACIÓN PARA EL PAGO", 100, y);
+      y += 6;
 
-    doc.save(`presupuesto_${contador}.pdf`);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text("trees.sanjuan@gmail.com", 10, y);
+      doc.text(`Alias: ${alias}`, 100, y);
+      y += 6;
+      doc.text("+54 264-5851326", 10, y);
+      doc.text(`Beneficiario: ${beneficiario}`, 100, y);
+      y += 6;
+      doc.text(`DNI: ${dni}`, 100, y);
+
+      doc.save(`presupuesto_${contador}.pdf`);
+    };
   };
 
   const handleGuardar = async () => {
@@ -139,7 +145,7 @@ export default function Presupuesto() {
       <Header />
       <div className="container mt-4">
         <div className="mb-3">
-          <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/")}>Inicio</button>
+          <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/admin")}>Inicio</button>
           <button className="btn btn-outline-secondary" onClick={() => navigate("/resumen")}>Ir a Resumen</button>
         </div>
 

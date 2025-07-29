@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import { jsPDF } from "jspdf";
-import logo from "../assets/logo.png";
 import Header from "./Header";
 
 export default function Resumen() {
@@ -41,6 +40,7 @@ export default function Resumen() {
   const handleEditarPresupuesto = (doc) => {
     localStorage.setItem("presupuesto_activo", JSON.stringify({
       extra: {
+        id: doc.id,
         cliente: doc.cliente,
         fecha: doc.fecha,
         alias: doc.alias,
@@ -48,7 +48,6 @@ export default function Resumen() {
         dni: doc.dni,
       },
       filas: doc.filas,
-      id: doc.id,
     }));
     navigate("/presupuesto");
   };
@@ -62,22 +61,46 @@ export default function Resumen() {
     navigate("/recibo");
   };
 
-  const handleDuplicarDocumento = (tipo, doc) => {
-    const nuevo = { ...doc, numero: null, id: null, creado_en: new Date().toISOString() };
-    const storageKey = tipo === "presupuestos" ? "presupuesto_activo" : "presupuesto_en_recibo";
-    localStorage.setItem(storageKey, JSON.stringify({ ...nuevo, filas: doc.filas }));
-    navigate(tipo === "presupuestos" ? "/presupuesto" : "/recibo");
+const handleDuplicarDocumento = (tipo, doc) => {
+  const duplicado = {
+    ...doc,
+    id: null,
+    numero: null,
+    creado_en: new Date().toISOString(),
   };
+
+  const storageKey = tipo === "presupuestos" ? "presupuesto_activo" : "presupuesto_en_recibo";
+
+  localStorage.setItem(storageKey, JSON.stringify({
+    extra: {
+      cliente: duplicado.cliente,
+      fecha: duplicado.fecha,
+      alias: duplicado.alias,
+      beneficiario: duplicado.beneficiario,
+      dni: duplicado.dni,
+      numero: null, // nueva numeración
+    },
+    filas: duplicado.filas,
+  }));
+
+  navigate(tipo === "presupuestos" ? "/presupuesto" : "/recibo");
+};
+
 
   const descargarReciboPDF = (recibo) => {
     const doc = new jsPDF();
     let y = 20;
+    const img = new Image();
+    img.src = "/assets/logo.png"; // desde public/assets
+
+    img.onload = () => {
+      let y = 30;
 
     doc.setFontSize(16);
     doc.text(`RECIBO Nº ${recibo.numero}`, 10, 10);
     doc.setFontSize(12);
     doc.text(`Fecha: ${new Date(recibo.fecha).toLocaleDateString()}`, 10, 16);
-    doc.addImage(logo, "PNG", 150, 5, 40, 20);
+    doc.addImage(img, "PNG", 150, 5, 40, 20);
 
     doc.text(`Recibí de: ${recibo.cliente}`, 10, y);
     y += 10;
@@ -105,6 +128,7 @@ export default function Resumen() {
 
     doc.save(`recibo_${recibo.numero}.pdf`);
   };
+  };
 
   const filtrados = (lista) =>
     lista.filter((item) => item.cliente.toLowerCase().includes(busqueda.toLowerCase()));
@@ -114,7 +138,7 @@ export default function Resumen() {
           <Header />
     <div className="container mt-4">
       <div className="mb-3">
-        <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/")}>Inicio</button>
+        <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/admin")}>Inicio</button>
         <input
           type="text"
           placeholder="Buscar por cliente..."

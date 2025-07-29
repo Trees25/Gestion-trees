@@ -1,16 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
 import Header from "./Header";
 
-export default function Inicio() {
+export default function Admin() {
   const navigate = useNavigate();
 
   return (
     <>
       <Header />
-    <div className="container text-center mt-5">
-      <img src={logo} alt="Logo" style={{ width: "120px" }} className="mb-4" />
+    <div className="flex flex-col items-center justify-center">
       <div className="container"></div>
       <h1 className="mb-4">Sistema de Presupuestos y Recibos</h1>
 

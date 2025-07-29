@@ -7,12 +7,12 @@ export default function Header() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
     <header className="d-flex justify-content-between align-items-center p-3 border-bottom mb-4">
-      <h1 style={{ margin: 0 }}>Gestion Trees</h1>
+       <img src={"/assets/logo.png"} alt="Logo" style={{ width: "150px" }} />
       <button className="btn btn-outline-danger" onClick={handleLogout}>
         Cerrar sesión
       </button>

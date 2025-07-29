@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Inicio from "./components/Inicio";
+import Inicio from "./components/Admin";
+import LandingPage from "./components/LandingPage"; // Landing pública
 import Presupuesto from "./components/Presupuesto";
 import Recibo from "./components/Recibo";
 import Resumen from "./components/Resumen";
@@ -10,11 +11,11 @@ function App() {
   return (
     <Router>
       <Routes>
+       <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        
         {/* Rutas privadas protegidas */}
         <Route 
-          path="/" 
+          path="/admin" 
           element={
             <PrivateRoute>
               <Inicio />

@@ -4,7 +4,7 @@ import { supabase } from "../supabase";
 export function useDocumento(tipo) {
   const tabla = tipo === "recibo" ? "recibos" : "presupuestos";
   const [contador, setContador] = useState(1);
-  const [filas, setFilas] = useState([{ descripcion: "", cantidad: 1, precio: 0 }]);
+  const [filas, setFilas] = useState([]);
   const [listado, setListado] = useState([]);
   const [documentoExtra, setDocumentoExtra] = useState({});
   const [id, setId] = useState(null); // Para guardar el id si es edición
@@ -80,12 +80,18 @@ export function useDocumento(tipo) {
   };
 
   // Función para cargar documento para editar
-  const cargarDocumento = (doc) => {
-    if (!doc) return;
-    setId(doc.id || null);
-    setDocumentoExtra(doc);
-    setFilas(doc.filas || [{ descripcion: "", cantidad: 1, precio: 0 }]);
-  };
+const cargarDocumento = (doc) => {
+  if (!doc) return;
+  setId(doc.id || null);
+  setDocumentoExtra(doc);
+
+  if (Array.isArray(doc.filas) && doc.filas.length > 0) {
+    setFilas(doc.filas);
+  } else {
+    setFilas([{ descripcion: "", cantidad: 1, precio: 0 }]);
+  }
+};
+
 
   return {
     contador,

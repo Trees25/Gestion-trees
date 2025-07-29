@@ -23,7 +23,7 @@ export default function Login() {
       alert("Error al iniciar sesión: " + error.message);
     } else {
       alert("Login exitoso!");
-      navigate("/"); // O la ruta que quieras tras login
+      navigate("/admin"); // O la ruta que quieras tras login
     }
   };
 
