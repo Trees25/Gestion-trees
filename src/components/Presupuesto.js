@@ -13,8 +13,6 @@ export default function Presupuesto() {
     eliminarFila,
     calcularTotal,
     guardarDocumento,
-    setFilas,
-    setDocumentoExtra,
     cargarDocumento,
   } = useDocumento("presupuesto");
 
@@ -64,7 +62,6 @@ export default function Presupuesto() {
     const img = new Image();
     img.src = "/assets/logo.png"; // desde public/assets
 
-    img.onload = () => {
       let y = 30;
 
       doc.setFont("helvetica", "bold");
@@ -127,7 +124,6 @@ export default function Presupuesto() {
       doc.text(`DNI: ${dni}`, 100, y);
 
       doc.save(`presupuesto_${contador}.pdf`);
-    };
   };
 
   const handleGuardar = async () => {

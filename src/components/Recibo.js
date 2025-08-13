@@ -40,12 +40,11 @@ export default function Recibo() {
 
   const generarPDF = () => {
     const doc = new jsPDF();
-    let y = 20;
+
     const img = new Image();
     img.src = "/assets/logo.png"; // desde public/assets
 
-     img.onload = () => {
-      let y = 30;
+    let y = 30;
 
     doc.setFontSize(16);
     doc.text(`RECIBO Nº ${contador}`, 10, 10);
@@ -59,10 +58,12 @@ export default function Recibo() {
     doc.text("Cantidad", 10, y);
     doc.text("Descripción", 40, y);
     doc.text("Importe", 160, y, { align: "right" });
+    doc.line(10, y + 1, 200, y + 1);
     y += 6;
 
     filas.forEach(({ descripcion, cantidad, precio }) => {
       if (!descripcion.trim()) return;
+      doc.rect(9, y - 4.5, 192, 6, "S");
       doc.text(cantidad.toString(), 10, y);
       doc.text(descripcion, 40, y);
       doc.text(`$${parseFloat(precio).toFixed(2)}`, 160, y, { align: "right" });
@@ -74,13 +75,7 @@ export default function Recibo() {
     doc.text(`TOTAL RECIBIDO: $${calcularTotal().toFixed(2)}`, 10, y);
     y += 10;
 
-    doc.setFont("helvetica", "normal");
-    doc.text("Firma y aclaración del responsable", 10, y);
-    y += 30;
-    doc.line(10, y, 100, y);
-
     return doc;
-  };
   };
 
   const verPDF = () => {
