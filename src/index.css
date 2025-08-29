@@ -375,7 +375,44 @@ code {
   border-top: none;
 }
 
- /* Profile card*/
+.card-swap-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(5%, 20%);
+  transform-origin: bottom right;
+
+  perspective: 900px;
+  overflow: visible;
+}
+
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 12px;
+  border: 1px solid #fff;
+  background: #000;
+
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .card-swap-container {
+    transform: scale(0.75) translate(25%, 25%);
+  }
+}
+
+@media (max-width: 480px) {
+  .card-swap-container {
+    transform: scale(0.55) translate(25%, 25%);
+  }
+}
+
+ /*----------------------------- Profile card---------------------------------*/
 :root {
   --pointer-x: 50%;
   --pointer-y: 50%;
@@ -407,10 +444,9 @@ code {
 }
 
 .pc-card-wrapper {
-  perspective: 500px;
-  transform: translate3d(0, 0, 0.1px);
-  position: relative;
-  touch-action: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform, opacity;
 }
 
 .pc-card-wrapper::before {
@@ -460,6 +496,13 @@ code {
 .pc-card.active {
   transition: none;
   transform: translate3d(0, 0, 0.1px) rotateX(var(--rotate-y)) rotateY(var(--rotate-x));
+}
+.pc-card::before {
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+.pc-card:hover::before {
+  opacity: 1;
 }
 
 .pc-card * {
@@ -549,7 +592,7 @@ code {
 }
 
 .pc-avatar-content {
-  mix-blend-mode: screen;
+  mix-blend-mode: normal !important;
   overflow: hidden;
 }
 
@@ -826,7 +869,7 @@ code {
 
   .pc-contact-btn {
     padding: 5px 10px;
-    font-size: 10px;
+    font-size: 8px;
     border-radius: 50px;
   }
 }

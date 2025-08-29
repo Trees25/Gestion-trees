@@ -213,7 +213,7 @@ const LandingPage = () => {
           <ProfileCard
             name="Nicolás Andreolli"
             title="Desarrollador Fullstack"
-            handle="nicolasandreolli"
+            handle="nico_andreolli"
             status="Online"
             contactText="Contact Me"
             avatarUrl="/assets/Nicolas_Andreolli1.png"
