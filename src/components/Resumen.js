@@ -94,7 +94,7 @@ const handleDuplicarDocumento = (tipo, doc) => {
     img.src = "/assets/logo.png"; // desde public/assets
 
     img.onload = () => {
-      let y = 30;
+      y = 30;
 
     doc.setFontSize(16);
     doc.text(`RECIBO Nº ${recibo.numero}`, 10, 10);

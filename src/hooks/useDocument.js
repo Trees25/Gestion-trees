@@ -6,13 +6,13 @@ export function useDocumento(tipo) {
   const [contador, setContador] = useState(1);
   const [filas, setFilas] = useState([]);
   const [listado, setListado] = useState([]);
-  const [documentoExtra, setDocumentoExtra] = useState({});
+  const [setDocumentoExtra] = useState({});
   const [id, setId] = useState(null); // Para guardar el id si es edición
 
   useEffect(() => {
     obtenerContador();
     listarDocumentos();
-  }, []);
+  },);
 
   const obtenerContador = async () => {
     const { count } = await supabase.from(tabla).select("*", { count: "exact", head: true });
