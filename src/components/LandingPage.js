@@ -91,7 +91,7 @@ const LandingPage = () => {
 
   // Hero
   const Hero = () => (
-    <section id="inicio" className="relative min-h-screen flex items-center bg-gradient-to-r from-[#101726] to-[#101726] overflow-hidden pt-10 pb-6">
+    <section id="inicio" className="relative min-h-screen flex items-center bg-gradient-to-r from-[#101726] to-[#101726] overflow-hidden pb-6">
        <div style={{ width: '100%', height: '600px', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <FaultyTerminal
