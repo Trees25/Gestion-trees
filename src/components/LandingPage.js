@@ -3,9 +3,11 @@ import TrueFocus from '../reactbits/TrueFocus';
 import ProfileCard from '../reactbits/ProfileCard'
 import GooeyNav from "../reactbits/GooeyNav";
 import FaultyTerminal from "../reactbits/FaultyTerminal";
+import AboutAnimation from "../reactbits/Lottie";
 
 const LandingPage = () => {
   // --- Subcomponentes ---
+  
   // Navbar
   const Navbar = () => {
     const items = [
@@ -184,9 +186,7 @@ const LandingPage = () => {
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Sobre Nosotros</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           <MissionVision />
-          <div className="bg-[#101726] rounded-lg p-4 flex items-center justify-center">
-            <img src="./assets/Trees_logo.png" alt="Equipo de desarrollo de software y hardware" className="w-[400px] h-[300px] rounded-lg" loading="lazy" />
-          </div>
+         <AboutAnimation/>
         </div>
         <h3 className="text-4xl font-semibold text-center mb-8 text-[#5EADF2]">Nuestro Equipo</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
