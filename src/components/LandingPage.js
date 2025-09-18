@@ -91,8 +91,8 @@ const LandingPage = () => {
 
   // Hero
   const Hero = () => (
-    <section id="inicio" className="relative min-h-screen flex items-center bg-gradient-to-r from-[#101726] to-[#101726] overflow-hidden pb-6">
-       <div style={{ width: '100%', height: '600px', position: 'relative' }}>
+    <section id="inicio" className="relative min-h-screen flex items-center bg-gradient-to-r from-[#101726] to-[#101726] overflow-hidden">
+       <div style={{ width: '100%', height: '640px', position: 'relative' }}>
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <FaultyTerminal
           scale={1.5}
@@ -176,14 +176,6 @@ const LandingPage = () => {
         Buscamos ser reconocidos como referentes en el desarrollo de soluciones tecnológicas integrales, fusionando software y hardware de calidad superior. Aspiramos a impulsar la transformación digital de nuestros clientes, brindándoles herramientas innovadoras que potencien su crecimiento, eficiencia y competitividad en el mercado.
       </p>
     </div>
-  );
-
-  const TeamMember = ({ photo, name, role }) => (
-    <article className="bg-[#101726] p-6 rounded-lg shadow-lg hover:shadow-xl transition max-w-xs">
-      <img src={photo} alt={`Foto de ${name}`} className="w-32 h-32 mx-auto rounded-full mb-4 border-2 border-[#3D8BF2]" loading="lazy" />
-      <h4 className="text-xl font-semibold text-center mb-2 text-[#5EADF2]">{name}</h4>
-      <p className="text-center mb-0">{role}</p>
-    </article>
   );
 
   const About = () => (
