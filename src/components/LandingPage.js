@@ -192,7 +192,7 @@ const LandingPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
           <ProfileCard
             name="Juan Mondre"
-            title="Técnico programador universitario"
+            title="Desarrollador Fullstack"
             handle="juanmondre"
             status="Online"
             contactText="Contact Me"
@@ -200,7 +200,7 @@ const LandingPage = () => {
             showUserInfo={true}
             enableTilt={true}
             enableMobileTilt={false}
-            onContactClick={() => console.log("Contact clicked for Juan")}
+            onContactClick={() => window.open("https://linktr.ee/JuanMondre")}
           />
           <ProfileCard
             name="Nicolás Andreolli"
