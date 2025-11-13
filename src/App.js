@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Inicio from "./components/Admin";
-import LandingPage from "./components/LandingPage"; 
+import LandingPage from "./pages/LandingPage"; 
 import Presupuesto from "./components/Presupuesto";
 import Recibo from "./components/Recibo";
 import Resumen from "./components/Resumen";
