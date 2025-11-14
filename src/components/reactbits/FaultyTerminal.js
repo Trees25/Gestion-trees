@@ -1,6 +1,6 @@
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
 import { useEffect, useRef, useMemo, useCallback } from "react";
-import "../index.css";
+import "../../styles/FaultyTerminal.css";
 
 const vertexShader = `
 attribute vec2 position;

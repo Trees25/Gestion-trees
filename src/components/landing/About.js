@@ -1,6 +1,6 @@
 import React from "react";
-import ProfileCard from "../../reactbits/ProfileCard"; // Asegúrate de ajustar la ruta
-import AboutAnimation from "../../reactbits/Lottie"; // Asegúrate de ajustar la ruta
+import ProfileCard from "../reactbits/ProfileCard"; // Asegúrate de ajustar la ruta
+import AboutAnimation from "../reactbits/Lottie"; // Asegúrate de ajustar la ruta
 
 const MissionVision = () => (
   <div>

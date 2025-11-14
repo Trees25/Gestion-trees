@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Folder from "../../reactbits/Folder"; // Asegúrate de ajustar la ruta
+import Folder from "../reactbits/Folder"; // Asegúrate de ajustar la ruta
 
 const Portfolio = () => {
   const [openFolder, setOpenFolder] = useState(null);
@@ -9,32 +9,16 @@ const Portfolio = () => {
   };
 
   return (
-    <section id="portafolio" className="py-16 bg-[#202E40] text-white">
-      <div style={{ textAlign: "center", padding: "40px 0" }}>
-        <h2
-          style={{
-            marginBottom: "40px",
-            fontSize: "2rem",
-            color: "#ffffffff",
-          }}
-        >
+    <section id="portafolio" className="py-16 bg-[#120e2e] text-white portfolio-section">
+      <div className="portfolio-container">
+        <h2 className="portfolio-title">
           Nuestros Proyectos
         </h2>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "flex-start",
-            gap: "60px",
-            height: "400px",
-          }}
-        >
+        <div className="folders-wrapper">
           {/* 📂 Carpeta 1 */}
-          <div style={{ textAlign: "center" }}>
-            <h3
-              style={{ marginBottom: "50px", fontSize: "1.2rem", color: "#fff" }}
-            >
+          <div className="folder-item">
+            <h3 className="folder-title">
               Paginas Web
             </h3>
             <Folder
@@ -50,10 +34,8 @@ const Portfolio = () => {
           </div>
 
           {/* 📂 Carpeta 2 */}
-          <div style={{ textAlign: "center" }}>
-            <h3
-              style={{ marginBottom: "50px", fontSize: "1.2rem", color: "#fff" }}
-            >
+          <div className="folder-item">
+            <h3 className="folder-title">
               Aplicacion web
             </h3>
             <Folder
@@ -69,10 +51,8 @@ const Portfolio = () => {
           </div>
 
           {/* 📂 Carpeta 3 */}
-          <div style={{ textAlign: "center" }}>
-            <h3
-              style={{ marginBottom: "50px", fontSize: "1.2rem", color: "#fff" }}
-            > 
+          <div className="folder-item">
+            <h3 className="folder-title"> 
               Sistemas Personalizados
             </h3>
             <Folder

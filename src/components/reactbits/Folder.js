@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import '../index.css';
+import '../../styles/Portfolio.css';
 
 const darkenColor = (hex, percent) => {
   let color = hex.startsWith('#') ? hex.slice(1) : hex;

@@ -1,6 +1,6 @@
 import React from "react";
-import TrueFocus from "../../reactbits/TrueFocus"; // Asegúrate de ajustar la ruta
-import FaultyTerminal from "../../reactbits/FaultyTerminal"; // Asegúrate de ajustar la ruta
+import TrueFocus from "../reactbits/TrueFocus"; // Asegúrate de ajustar la ruta
+import FaultyTerminal from "../reactbits/FaultyTerminal"; // Asegúrate de ajustar la ruta
 
 const Hero = () => (
   <section id="inicio" className="relative min-h-screen flex items-center bg-gradient-to-r from-[#101726] to-[#101726] overflow-hidden">

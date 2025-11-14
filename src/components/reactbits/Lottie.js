@@ -1,7 +1,7 @@
 import React from 'react';
 import Lottie from 'lottie-react';
 // Importá el JSON de la animación (suponiendo que lo bajaste)
-import animationData from '../animacion.json';
+import animationData from '../../animacion.json';
 
 const AboutAnimation = () => {
   return (

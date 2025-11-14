@@ -1,4 +1,6 @@
 import React from "react";
+import PixelCard from "../reactbits/PixelCard"; // Asegúrate de que la ruta sea correcta
+import '../../styles/PixelCard.css'; // Asegúrate de que esta ruta sea correcta para tu PixelCard.css
 
 const ClientItem = ({ logo, name }) => (
   <div className="flex items-center justify-center bg-[#101726] p-2 rounded-lg shadow-lg hover:shadow-xl transition w-full h-54">
@@ -30,6 +32,23 @@ const Clients = () => {
           {clients.map((client, index) => (
             <ClientItem key={index} logo={client.logo} name={client.name} />
           ))}
+
+          {/* ESTE ES EL ELEMENTO CLAVE: Replicamos EXACTAMENTE el contenedor de ClientItem */}
+          <div className="flex items-center justify-center bg-[#101726] p-2 rounded-lg shadow-lg hover:shadow-xl transition w-full h-[170px]">
+            {/* El PixelCard debe ocupar el 100% del espacio *dentro* de este div con padding */}
+            {/* Si ya aplicaste los cambios en PixelCard.jsx (canvas y children absolutos), este será el setup final */}
+            <PixelCard variant="pink" className="w-full h-full relative"> {/* 'relative' si el contenido usa absolute */}
+              <a
+                href="#contacto"
+                className="absolute inset-0 flex flex-col items-center justify-center text-center text-lg font-bold z-10 p-2"
+                style={{ color: '#fafafaff' }} // Ajusta el color si es necesario
+              >
+                Sé el Próximo
+                <span className="text-sm font-normal mt-1">¡Contáctanos!</span>
+              </a>
+            </PixelCard>
+          </div>
+
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import GooeyNav from "../../reactbits/GooeyNav"; // Asegúrate de ajustar la ruta
+import GooeyNav from "../reactbits/GooeyNav"; // Asegúrate de ajustar la ruta
 
 const Navbar = () => {
   const items = [
