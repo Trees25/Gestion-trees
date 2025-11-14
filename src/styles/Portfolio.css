@@ -55,10 +55,12 @@
     height: auto; /* Mantén la altura automática */
   }
 
-  .folder-item {
-    width: 45%; /* Dos carpetas por fila */
-    max-width: none; /* Elimina el max-width si no es necesario */
-  }
+ .folder-item {
+  width: 90%;
+  max-width: 300px;
+  margin-left: auto; /* Añadido */
+  margin-right: auto; /* Añadido */
+}
 
   .folder-title {
     margin-bottom: 30px;
@@ -102,9 +104,11 @@
 }
 
 .folder {
-  transition: all 0.2s ease-in;
-  cursor: pointer;
-  margin: 10px;
+  /* ... */
+  margin: 0; /* Eliminado el margen fijo para que folder-item lo maneje o el gap */
+  width: 100%; /* Ahora el .folder ocupa todo el ancho de su padre .folder-item */
+  max-width: 300px; /* Para que no crezca indefinidamente en desktops si .folder-item es más ancho */
+  aspect-ratio: 1.25; /* CLAVE: Mantiene la proporción 300/240px = 1.25 */
 }
 
 .folder:not(.folder--click):hover {

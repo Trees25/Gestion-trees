@@ -26,7 +26,7 @@ const Portfolio = () => {
               images={[
                 "/images/proyecto1a.jpg",
                 "/images/proyecto1b.jpg",
-                "/images/proyecto1c.jpg",
+                "/assets/kaiserjagger1.png",
               ]}
               isOpen={openFolder === 1}
               onToggle={() => handleToggle(1)}
