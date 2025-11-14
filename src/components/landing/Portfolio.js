@@ -21,6 +21,7 @@ const Portfolio = () => {
             <h3 className="folder-title">
               Paginas Web
             </h3>
+            <div className="folder-wrapper">   {/* ← ESTE WRAPPER ES LA SOLUCIÓN */}
             <Folder
               color="#296cf2"
               images={[
@@ -32,12 +33,14 @@ const Portfolio = () => {
               onToggle={() => handleToggle(1)}
             />
           </div>
+          </div>
 
           {/* 📂 Carpeta 2 */}
           <div className="folder-item">
             <h3 className="folder-title">
               Aplicacion web
             </h3>
+             <div className="folder-wrapper">   {/* ← ESTE WRAPPER ES LA SOLUCIÓN */}
             <Folder
               color="#3d8bf2"
               images={[
@@ -49,12 +52,13 @@ const Portfolio = () => {
               onToggle={() => handleToggle(2)}
             />
           </div>
-
+          </div>
           {/* 📂 Carpeta 3 */}
           <div className="folder-item">
             <h3 className="folder-title"> 
               Sistemas Personalizados
             </h3>
+            <div className="folder-wrapper">   {/* ← ESTE WRAPPER ES LA SOLUCIÓN */}
             <Folder
               color="#5eadf2"
               images={[
@@ -65,6 +69,7 @@ const Portfolio = () => {
               isOpen={openFolder === 3}
               onToggle={() => handleToggle(3)}
             />
+          </div>
           </div>
         </div>
       </div>

@@ -1,77 +1,150 @@
 /* Estilos generales para el Portfolio */
 .portfolio-section {
-  padding: 40px 0; /* Ajusta el padding para móviles */
+  padding: 2rem 0;
 }
 
 .portfolio-container {
   text-align: center;
-  padding: 20px 0; /* Menos padding en móviles */
+  padding: 1rem 0;
 }
 
 .portfolio-title {
-  margin-bottom: 30px; /* Ajusta el margen para móviles */
-  font-size: 1.8rem; /* Tamaño de fuente más pequeño para móviles */
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
   color: #ffffff;
 }
 
 .folders-wrapper {
   display: flex;
-  flex-direction: column; /* Apila las carpetas verticalmente en móviles */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 30px; /* Reduce el espacio entre carpetas en móviles */
-  height: auto; /* Altura automática para que se expanda según el contenido */
+  gap: 1.5rem;
+  height: auto;
 }
 
 .folder-item {
   text-align: center;
-  width: 90%; /* Ancho para las carpetas en móviles */
-  max-width: 300px; /* Limita el ancho máximo si es necesario */
+  width: 90%; /* Ancho por defecto */
+  max-width: 300px; /* Ancho máximo por defecto */
+  margin-left: auto; /* Centrar el folder-item si su padre es más grande */
+  margin-right: auto;
 }
 
 .folder-title {
-  margin-bottom: 20px; /* Ajusta el margen para móviles */
-  font-size: 1.1rem; /* Tamaño de fuente más pequeño para móviles */
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
   color: #ffffff;
 }
+
+/* --- Mobile fix real (hasta 380px) --- */
+@media (max-width: 380px) {
+
+  .folder-item {
+    width: 140px;
+    margin: 0;
+    text-align: center;
+    padding: 0;
+  }
+
+  /* El scale ahora aplicará al wrapper nuevo */
+  .folder-wrapper {
+    transform: scale(0.45);
+    transform-origin: top center;
+     height: 140px; /* <-- antes ocupaba ~300px */
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+ .folders-wrapper {
+     margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+  }
+
+  /* La carpeta NO debe tener scale */
+  .folder {
+    transform: none !important;
+    margin: 0 auto !important;
+  }
+.folder-title {
+    margin-top: 0.3rem;
+    margin-bottom: 2rem;
+  }
+  .folder:not(.folder--click):hover {
+    transform: translateY(-6px) !important;
+  }
+
+  .folder.open {
+    transform: translateY(-6px) !important;
+  }
+}
+
 
 /* --- Media Queries para tablets y desktops --- */
 
 /* Para pantallas medianas (tablets, ej. 768px y más) */
 @media (min-width: 768px) {
   .portfolio-section {
-    padding: 60px 0;
+    padding: 3rem 0;
   }
 
   .portfolio-title {
-    margin-bottom: 40px;
-    font-size: 2.5rem; /* Tamaño de fuente más grande */
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
   }
 
   .folders-wrapper {
-    flex-direction: row; /* Vuelve a poner las carpetas en fila */
-    flex-wrap: wrap; /* Permite que las carpetas envuelvan en la siguiente fila si no caben */
-    gap: 40px; /* Ajusta el espacio */
-    height: auto; /* Mantén la altura automática */
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2rem;
+    height: auto;
   }
 
  .folder-item {
-  width: 90%;
-  max-width: 300px;
-  margin-left: auto; /* Añadido */
-  margin-right: auto; /* Añadido */
+  width: calc(50% - 1rem);
+  max-width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+  height: auto;
 }
 
   .folder-title {
-    margin-bottom: 30px;
-    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+    margin-top: initial; /* Restablecer margin-top del título */
+  }
+
+  /* Restablecer tamaño del .folder para tablets y superiores */
+  .folder {
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .folder__back {
+    width: 300px; /* Vuelve al tamaño original */
+    height: 240px; /* Vuelve al tamaño original */
+  }
+
+  .folder__back::after {
+    width: 90px; /* Vuelve al tamaño original */
+    height: 30px; /* Vuelve al tamaño original */
+  }
+
+  /* Restablecer las transformaciones de hover/open en tablets */
+  .folder:not(.folder--click):hover {
+    transform: translateY(-8px);
+  }
+
+  .folder.open {
+    transform: translateY(-8px);
   }
 }
 
 /* Para pantallas grandes (desktops, ej. 1024px y más) */
 @media (min-width: 1024px) {
   .portfolio-section {
-    padding: 80px 0;
+    padding: 4rem 0;
   }
 
   .portfolio-title {
@@ -79,18 +152,20 @@
   }
 
   .folders-wrapper {
-    gap: 60px; /* Vuelve al espacio original entre carpetas */
-    height: 400px; /* Opcional: define una altura fija si el diseño lo requiere */
-    flex-wrap: nowrap; /* Evita que las carpetas envuelvan */
+    gap: 3rem;
+    height: 400px;
+    flex-wrap: nowrap;
   }
 
   .folder-item {
-    width: auto; /* Permite que el ancho se ajuste al contenido de la carpeta */
+    width: calc(33.333% - 2rem);
+    max-width: 380px;
   }
 
   .folder-title {
-    margin-bottom: 50px;
-    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    font-size: 1.5rem;
+    margin-top: initial; /* Restablecer margin-top del título */
   }
 }
 
@@ -104,13 +179,15 @@
 }
 
 .folder {
-  /* ... */
-  margin: 0; /* Eliminado el margen fijo para que folder-item lo maneje o el gap */
-  width: 100%; /* Ahora el .folder ocupa todo el ancho de su padre .folder-item */
-  max-width: 300px; /* Para que no crezca indefinidamente en desktops si .folder-item es más ancho */
-  aspect-ratio: 1.25; /* CLAVE: Mantiene la proporción 300/240px = 1.25 */
+  margin: 0 auto;
+  width: 100%;
+  max-width: 300px; /* Tamaño base */
+  aspect-ratio: 1.25;
+  transition: all 0.3s ease-in-out;
+  /* NO transform: scale() aquí, solo las animaciones */
 }
 
+/* Las transformaciones de hover y open NO se modifican por un scale base */
 .folder:not(.folder--click):hover {
   transform: translateY(-8px);
 }
@@ -167,8 +244,8 @@
 
 .folder__back {
   position: relative;
-  width: 300px;
-  height: 240px;
+  width: 300px; /* Tamaño base */
+  height: 240px; /* Tamaño base */
   background: var(--folder-back-color);
   border-radius: 0px 10px 10px 10px;
 }
@@ -179,8 +256,8 @@
   bottom: 98%;
   left: 0;
   content: '';
-  width: 90px;
-  height: 30px;
+  width: 90px; /* Tamaño base */
+  height: 30px; /* Tamaño base */
   background: var(--folder-back-color);
   border-radius: 5px 5px 0 0;
 }
