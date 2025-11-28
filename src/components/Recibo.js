@@ -1,7 +1,8 @@
+// src/components/Recibo.js
 import React, { useState, useEffect } from "react";
 import { jsPDF } from "jspdf";
 import { useDocumento } from "../hooks/useDocument";
-import { useNavigate } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import Header from "./Header";
 
 export default function Recibo() {
@@ -13,6 +14,7 @@ export default function Recibo() {
     eliminarFila,
     calcularTotal,
     guardarDocumento,
+    cargarDocumento,
     setFilas,
   } = useDocumento("recibo");
 
@@ -21,9 +23,10 @@ export default function Recibo() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const data = localStorage.getItem("presupuesto_en_recibo");
-    if (data) {
-      const parsed = JSON.parse(data);
+    // Si venimos de "Generar recibo desde presupuesto"
+    const fromPresupuesto = localStorage.getItem("presupuesto_en_recibo");
+    if (fromPresupuesto) {
+      const parsed = JSON.parse(fromPresupuesto);
       setCliente(parsed.cliente || "");
       setFecha(parsed.fecha || new Date().toISOString().split("T")[0]);
       if (Array.isArray(parsed.filas)) {
@@ -36,21 +39,37 @@ export default function Recibo() {
       }
       localStorage.removeItem("presupuesto_en_recibo");
     }
-  }, [setFilas]);
+
+    // Si venimos desde Resumen para EDITAR un recibo
+    const activo = localStorage.getItem("recibo_activo");
+    if (activo) {
+      const { extra, filas: filasGuardadas } = JSON.parse(activo);
+      const docParaEditar = {
+        id: extra.id,
+        numero: extra.numero,
+        cliente: extra.cliente || "",
+        fecha: extra.fecha || new Date().toISOString().split("T")[0],
+        filas: Array.isArray(filasGuardadas) ? filasGuardadas : [{ descripcion: "", cantidad: 1, precio: 0 }],
+      };
+      cargarDocumento(docParaEditar);
+      setCliente(docParaEditar.cliente);
+      setFecha(docParaEditar.fecha);
+      localStorage.removeItem("recibo_activo");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const generarPDF = () => {
     const doc = new jsPDF();
-
     const img = new Image();
-    img.src = "/assets/logo.png"; // desde public/assets
+    img.src = "/assets/logo.png";
 
     let y = 30;
-
     doc.setFontSize(16);
     doc.text(`RECIBO Nº ${contador}`, 10, 10);
     doc.setFontSize(12);
     doc.text(`Fecha: ${new Date(fecha).toLocaleDateString()}`, 10, 16);
-    doc.addImage(img, "PNG", 150, 5, 40, 20);
+    try { doc.addImage(img, "PNG", 150, 5, 40, 20); } catch(e) {}
 
     doc.text(`Recibí de: ${cliente}`, 10, y);
     y += 10;
@@ -62,11 +81,11 @@ export default function Recibo() {
     y += 6;
 
     filas.forEach(({ descripcion, cantidad, precio }) => {
-      if (!descripcion.trim()) return;
+      if (!descripcion || !descripcion.toString().trim()) return;
       doc.rect(9, y - 4.5, 192, 6, "S");
-      doc.text(cantidad.toString(), 10, y);
+      doc.text(String(cantidad), 10, y);
       doc.text(descripcion, 40, y);
-      doc.text(`$${parseFloat(precio).toFixed(2)}`, 160, y, { align: "right" });
+      doc.text(`$${Number(precio).toFixed(2)}`, 160, y, { align: "right" });
       y += 6;
     });
 
@@ -90,7 +109,7 @@ export default function Recibo() {
   };
 
   const handleGuardar = async () => {
-    if (!cliente || !filas.some(f => f.descripcion.trim())) {
+    if (!cliente || !filas.some(f => f.descripcion && f.descripcion.toString().trim())) {
       alert("Faltan datos");
       return;
     }

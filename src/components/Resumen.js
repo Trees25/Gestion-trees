@@ -1,236 +1,286 @@
 // src/components/Resumen.js
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import { jsPDF } from "jspdf";
-import Header from "./Header";
+import { useNavigate } from "react-router-dom";
+
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function Resumen() {
-  const [presupuestos, setPresupuestos] = useState([]);
   const [recibos, setRecibos] = useState([]);
+  const [presupuestos, setPresupuestos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchPresupuestos();
-    fetchRecibos();
+    cargarRecibos();
+    cargarPresupuestos();
   }, []);
 
-  const fetchPresupuestos = async () => {
-    const { data, error } = await supabase.from("presupuestos").select("*");
-    if (!error) setPresupuestos(data);
+  const cargarRecibos = async () => {
+    const { data: reciboData } = await supabase
+      .from("recibos")
+      .select("*")
+      .order("creado_en", { ascending: false });
+
+    const { data: filasReciboData } = await supabase
+      .from("recibo_filas")
+      .select("*");
+
+    const recibosConFilas = (reciboData || []).map((r) => ({
+      ...r,
+      filas: (filasReciboData || []).filter((f) => f.recibo_id === r.id),
+    }));
+    setRecibos(recibosConFilas);
   };
 
-  const fetchRecibos = async () => {
-    const { data, error } = await supabase.from("recibos").select("*");
-    if (!error) setRecibos(data);
+  const cargarPresupuestos = async () => {
+    const { data: presupData } = await supabase
+      .from("presupuestos")
+      .select("*")
+      .order("creado_en", { ascending: false });
+
+    const { data: filasData } = await supabase
+      .from("presupuesto_filas")
+      .select("*");
+
+    const presupConFilas = (presupData || []).map((p) => ({
+      ...p,
+      filas: (filasData || []).filter((f) => f.presupuesto_id === p.id),
+    }));
+
+    setPresupuestos(presupConFilas);
   };
 
+  const calcularTotal = (filas) =>
+    filas?.reduce(
+      (acc, f) => acc + (Number(f.cantidad) || 0) * (Number(f.precio) || 0),
+      0
+    ) || 0;
+
+  // Eliminar documento
   const eliminarDocumento = async (tipo, id) => {
-    if (!window.confirm("¿Estás seguro que querés eliminar este documento?")) return;
-    const { error } = await supabase.from(tipo).delete().eq("id", id);
-    if (!error) {
-      alert("Documento eliminado correctamente.");
-      tipo === "presupuestos" ? fetchPresupuestos() : fetchRecibos();
-    } else {
-      alert("Error al eliminar: " + error.message);
+    if (!window.confirm("¿Estás seguro que querés eliminar este documento?"))
+      return;
+
+    try {
+      if (tipo === "recibo") {
+        await supabase.from("recibo_filas").delete().eq("recibo_id", id);
+        const { error } = await supabase.from("recibos").delete().eq("id", id);
+        if (error) throw error;
+        cargarRecibos();
+      } else {
+        await supabase.from("presupuesto_filas").delete().eq("presupuesto_id", id);
+        const { error } = await supabase.from("presupuestos").delete().eq("id", id);
+        if (error) throw error;
+        cargarPresupuestos();
+      }
+      alert("Documento eliminado");
+    } catch (err) {
+      console.error("Error al eliminar:", err);
+      alert("Error al eliminar: " + (err.message || err));
     }
   };
 
-  const handleEditarPresupuesto = (doc) => {
-    localStorage.setItem("presupuesto_activo", JSON.stringify({
-      extra: {
-        id: doc.id,
-        cliente: doc.cliente,
-        fecha: doc.fecha,
-        alias: doc.alias,
-        beneficiario: doc.beneficiario,
-        dni: doc.dni,
-      },
-      filas: doc.filas,
-    }));
-    navigate("/presupuesto");
+  const editarDocumento = (tipo, doc) => {
+    if (tipo === "presupuesto") {
+      const payload = {
+        extra: {
+          id: doc.id,
+          numero: doc.numero,
+          cliente: doc.cliente,
+          fecha: doc.fecha,
+          alias: doc.alias || "",
+          beneficiario: doc.beneficiario || "",
+          dni: doc.dni || "",
+        },
+        filas: doc.filas || [],
+      };
+      localStorage.setItem("presupuesto_activo", JSON.stringify(payload));
+      navigate("/presupuesto");
+    } else {
+      const payload = {
+        extra: {
+          id: doc.id,
+          numero: doc.numero,
+          cliente: doc.cliente,
+          fecha: doc.fecha,
+        },
+        filas: doc.filas || [],
+      };
+      localStorage.setItem("recibo_activo", JSON.stringify(payload));
+      navigate("/recibo");
+    }
   };
 
-  const handleGenerarReciboDesdePresupuesto = (doc) => {
-    localStorage.setItem("presupuesto_en_recibo", JSON.stringify({
-      cliente: doc.cliente,
-      fecha: doc.fecha,
-      filas: doc.filas,
-    }));
-    navigate("/recibo");
-  };
+  const descargarPDF = (doc, tipo) => {
+    const pdf = new jsPDF();
+    const title = tipo === "recibo" ? "RECIBO" : "PRESUPUESTO";
+    pdf.setFontSize(16);
+    pdf.text(title, 14, 20);
+    pdf.setFontSize(12);
+    pdf.text(`N°: ${doc.numero}`, 14, 30);
+    pdf.text(`Cliente: ${doc.cliente}`, 14, 36);
+    pdf.text(`Fecha: ${new Date(doc.fecha).toLocaleDateString()}`, 14, 42);
 
-const handleDuplicarDocumento = (tipo, doc) => {
-  const duplicado = {
-    ...doc,
-    id: null,
-    numero: null,
-    creado_en: new Date().toISOString(),
-  };
+    const body = (doc.filas || []).map((f) => [
+      f.descripcion || "-",
+      f.cantidad ?? 0,
+      Number(f.precio)?.toFixed(2) ?? "0.00",
+      ((Number(f.cantidad) || 0) * (Number(f.precio) || 0)).toFixed(2),
+    ]);
 
-  const storageKey = tipo === "presupuestos" ? "presupuesto_activo" : "presupuesto_en_recibo";
-
-  localStorage.setItem(storageKey, JSON.stringify({
-    extra: {
-      cliente: duplicado.cliente,
-      fecha: duplicado.fecha,
-      alias: duplicado.alias,
-      beneficiario: duplicado.beneficiario,
-      dni: duplicado.dni,
-      numero: null, // nueva numeración
-    },
-    filas: duplicado.filas,
-  }));
-
-  navigate(tipo === "presupuestos" ? "/presupuesto" : "/recibo");
-};
-
-
-  const descargarReciboPDF = (recibo) => {
-    const doc = new jsPDF();
-    let y = 20;
-    const img = new Image();
-    img.src = "/assets/logo.png"; // desde public/assets
-
-    img.onload = () => {
-      y = 30;
-
-    doc.setFontSize(16);
-    doc.text(`RECIBO Nº ${recibo.numero}`, 10, 10);
-    doc.setFontSize(12);
-    doc.text(`Fecha: ${new Date(recibo.fecha).toLocaleDateString()}`, 10, 16);
-    doc.addImage(img, "PNG", 150, 5, 40, 20);
-
-    doc.text(`Recibí de: ${recibo.cliente}`, 10, y);
-    y += 10;
-
-    doc.text("Cantidad", 10, y);
-    doc.text("Descripción", 40, y);
-    doc.text("Importe", 160, y, { align: "right" });
-    y += 6;
-
-    recibo.filas.forEach(({ descripcion, cantidad, precio }) => {
-      if (!descripcion?.trim()) return;
-      doc.text(cantidad.toString(), 10, y);
-      doc.text(descripcion, 40, y);
-      doc.text(`$${parseFloat(precio).toFixed(2)}`, 160, y, { align: "right" });
-      y += 6;
+    pdf.autoTable({
+      head: [["Descripción", "Cantidad", "Precio", "Subtotal"]],
+      body,
+      startY: 50,
     });
 
-    y += 6;
-    doc.setFont("helvetica", "bold");
-    doc.text(`TOTAL: $${recibo.filas.reduce((t, f) => t + f.precio * f.cantidad, 0).toFixed(2)}`, 10, y);
-    y += 20;
-    doc.text("Firma y aclaración del responsable", 10, y);
-    y += 20;
-    doc.line(10, y, 100, y);
-
-    doc.save(`recibo_${recibo.numero}.pdf`);
-  };
+    const finalY = pdf.lastAutoTable?.finalY || 50;
+    pdf.text(`TOTAL: $${calcularTotal(doc.filas).toFixed(2)}`, 14, finalY + 10);
+    pdf.save(`${tipo}-${doc.numero || doc.id}.pdf`);
   };
 
-  const filtrados = (lista) =>
-    lista.filter((item) => item.cliente.toLowerCase().includes(busqueda.toLowerCase()));
+  const filtradoRecibos = recibos.filter((r) =>
+    r.cliente?.toLowerCase().includes(busqueda.toLowerCase())
+  );
+  const filtradoPresupuestos = presupuestos.filter((p) =>
+    p.cliente?.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
   return (
-     <>
-          <Header />
     <div className="container mt-4">
-      <div className="mb-3">
-        <button className="btn btn-outline-secondary me-2" onClick={() => navigate("/admin")}>Inicio</button>
+
+      {/* BOTONES DE VOLVER */}
+      <div className="mb-3 d-flex gap-2">
+        <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          ← Volver
+        </button>
+        <button className="btn btn-dark" onClick={() => navigate("/")}>
+          ⬅ Ir al inicio
+        </button>
+      </div>
+
+      <h2 className="mb-4">Resumen General</h2>
+
+      <div className="mb-3 d-flex gap-2 align-items-center">
         <input
-          type="text"
+          className="form-control w-auto"
           placeholder="Buscar por cliente..."
-          className="form-control d-inline-block w-auto"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
+        <button
+          className="btn btn-outline-secondary"
+          onClick={() => {
+            setBusqueda("");
+            cargarRecibos();
+            cargarPresupuestos();
+          }}
+        >
+          Limpiar
+        </button>
       </div>
 
-      <h2 className="mb-4">Resumen</h2>
-      <ul className="nav nav-tabs">
-        <li className="nav-item">
-          <button className="nav-link active" data-bs-toggle="tab" data-bs-target="#presupuestos">
-            Presupuestos
-          </button>
-        </li>
-        <li className="nav-item">
-          <button className="nav-link" data-bs-toggle="tab" data-bs-target="#recibos">
-            Recibos
-          </button>
-        </li>
-      </ul>
-
-      <div className="tab-content pt-3">
-        <div className="tab-pane fade show active" id="presupuestos">
-          {filtrados(presupuestos).length === 0 ? (
-            <p>No hay presupuestos.</p>
-          ) : (
-            <table className="table table-bordered">
-              <thead className="table-dark">
-                <tr>
-                  <th>#</th>
-                  <th>Cliente</th>
-                  <th>Fecha</th>
-                  <th>Total</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtrados(presupuestos).map((p) => (
-                  <tr key={p.id}>
-                    <td>{p.numero}</td>
-                    <td>{p.cliente}</td>
-                    <td>{p.fecha}</td>
-                    <td>${p.filas.reduce((t, f) => t + f.precio * f.cantidad, 0).toFixed(2)}</td>
-                    <td>
-                      <button className="btn btn-sm btn-primary me-1" onClick={() => handleEditarPresupuesto(p)}>Editar</button>
-                      <button className="btn btn-sm btn-success me-1" onClick={() => handleGenerarReciboDesdePresupuesto(p)}>Generar Recibo</button>
-                      <button className="btn btn-sm btn-warning me-1" onClick={() => handleDuplicarDocumento("presupuestos", p)}>Duplicar</button>
-                      <button className="btn btn-sm btn-danger" onClick={() => eliminarDocumento("presupuestos", p.id)}>Eliminar</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <h3>Recibos</h3>
+      <table className="table table-bordered">
+        <thead className="table-dark">
+          <tr>
+            <th>Número</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th style={{ width: 220 }}>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtradoRecibos.map((r) => (
+            <tr key={r.id}>
+              <td>{r.numero}</td>
+              <td>{r.cliente}</td>
+              <td>{new Date(r.fecha).toLocaleDateString()}</td>
+              <td>${calcularTotal(r.filas).toFixed(2)}</td>
+              <td>
+                <button
+                  className="btn btn-primary btn-sm me-2"
+                  onClick={() => editarDocumento("recibo", r)}
+                >
+                  Editar
+                </button>
+                <button
+                  className="btn btn-success btn-sm me-2"
+                  onClick={() => descargarPDF(r, "recibo")}
+                >
+                  Descargar
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => eliminarDocumento("recibo", r.id)}
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          ))}
+          {filtradoRecibos.length === 0 && (
+            <tr>
+              <td colSpan={5} className="text-center">
+                No hay recibos
+              </td>
+            </tr>
           )}
-        </div>
+        </tbody>
+      </table>
 
-        <div className="tab-pane fade" id="recibos">
-          {filtrados(recibos).length === 0 ? (
-            <p>No hay recibos.</p>
-          ) : (
-            <table className="table table-bordered">
-              <thead className="table-dark">
-                <tr>
-                  <th>#</th>
-                  <th>Cliente</th>
-                  <th>Fecha</th>
-                  <th>Total</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtrados(recibos).map((r) => (
-                  <tr key={r.id}>
-                    <td>{r.numero}</td>
-                    <td>{r.cliente}</td>
-                    <td>{r.fecha}</td>
-                    <td>${r.filas.reduce((t, f) => t + f.precio * f.cantidad, 0).toFixed(2)}</td>
-                    <td>
-                      <button className="btn btn-sm btn-secondary me-1" onClick={() => descargarReciboPDF(r)}>PDF</button>
-                      <button className="btn btn-sm btn-warning me-1" onClick={() => handleDuplicarDocumento("recibos", r)}>Duplicar</button>
-                      <button className="btn btn-sm btn-danger" onClick={() => eliminarDocumento("recibos", r.id)}>Eliminar</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <h3 className="mt-5">Presupuestos</h3>
+      <table className="table table-bordered">
+        <thead className="table-dark">
+          <tr>
+            <th>Número</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th style={{ width: 220 }}>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtradoPresupuestos.map((p) => (
+            <tr key={p.id}>
+              <td>{p.numero}</td>
+              <td>{p.cliente}</td>
+              <td>{new Date(p.fecha).toLocaleDateString()}</td>
+              <td>${calcularTotal(p.filas).toFixed(2)}</td>
+              <td>
+                <button
+                  className="btn btn-primary btn-sm me-2"
+                  onClick={() => editarDocumento("presupuesto", p)}
+                >
+                  Editar
+                </button>
+                <button
+                  className="btn btn-success btn-sm me-2"
+                  onClick={() => descargarPDF(p, "presupuesto")}
+                >
+                  Descargar
+                </button>
+                <button
+                  className="btn btn-danger btn-sm"
+                  onClick={() => eliminarDocumento("presupuesto", p.id)}
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          ))}
+          {filtradoPresupuestos.length === 0 && (
+            <tr>
+              <td colSpan={5} className="text-center">
+                No hay presupuestos
+              </td>
+            </tr>
           )}
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
-    </>
   );
 }

@@ -11,7 +11,7 @@ const app = express();
 // Para producción, reemplázalo con el dominio de tu frontend (ej: 'https://tudominio.com')
 app.use(cors({
   origin: process.env.NODE_ENV === "production"
-    ? "https://tudominio.com" // ¡CAMBIA ESTO por el dominio de tu frontend en producción!
+    ? "https://treestech.dev" // ¡CAMBIA ESTO por el dominio de tu frontend en producción!
     : "http://localhost:3000" // Para desarrollo
 }));
 
