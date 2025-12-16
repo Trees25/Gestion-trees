@@ -53,6 +53,9 @@ const ContactForm = () => {
       });
 
       const data = await response.json();
+      console.log("STATUS HTTP:", response.status);
+      console.log("RESPUESTA BACKEND:", data);
+      
       if (data.success) {
         setStatus("✅ Tu mensaje fue enviado correctamente.");
         setName("");
@@ -123,10 +126,10 @@ const ContactForm = () => {
       {status && (
         <p
           className={`text-sm p-3 rounded ${status.includes("✅")
-              ? "bg-green-100 text-green-700"
-              : status.includes("❌")
-                ? "bg-red-100 text-red-700"
-                : "bg-yellow-100 text-yellow-700"
+            ? "bg-green-100 text-green-700"
+            : status.includes("❌")
+              ? "bg-red-100 text-red-700"
+              : "bg-yellow-100 text-yellow-700"
             }`}
         >
           {status}
