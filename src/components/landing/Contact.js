@@ -53,9 +53,7 @@ const ContactForm = () => {
       });
 
       const data = await response.json();
-      console.log("STATUS HTTP:", response.status);
-      console.log("RESPUESTA BACKEND:", data);
-      
+
       if (data.success) {
         setStatus("✅ Tu mensaje fue enviado correctamente.");
         setName("");
