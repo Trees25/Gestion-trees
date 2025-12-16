@@ -46,7 +46,7 @@ const ContactForm = () => {
     setStatus(""); // Limpia el estado anterior
 
     try {
-      const response = await fetch("http://localhost:4000/send-email", {
+      const response = await fetch("http://treestech.dev/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message }),

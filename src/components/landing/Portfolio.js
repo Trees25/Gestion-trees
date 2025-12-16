@@ -25,9 +25,9 @@ const Portfolio = () => {
             <Folder
               color="#296cf2"
               images={[
-                "/images/proyecto1a.jpg",
-                "/images/proyecto1b.jpg",
-                "/assets/kaiserjagger1.png",
+                "/assets/kaiserjagger.png",
+                "/assets/certibankos.png",
+                "/assets/anti-robo-auto.png",
               ]}
               isOpen={openFolder === 1}
               onToggle={() => handleToggle(1)}
