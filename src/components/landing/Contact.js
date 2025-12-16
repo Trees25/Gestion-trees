@@ -46,7 +46,7 @@ const ContactForm = () => {
     setStatus(""); // Limpia el estado anterior
 
     try {
-      const response = await fetch("https://treestech.dev/send-email", {
+      const response = await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message }),
@@ -114,22 +114,20 @@ const ContactForm = () => {
       <button
         type="submit" // Importante para formularios
         disabled={loading}
-        className={`${
-          loading ? "bg-gray-500 cursor-not-allowed" : "bg-[#296CF2] hover:bg-[#3D8BF2]"
-        } text-white px-6 py-3 rounded-full font-semibold transition`}
+        className={`${loading ? "bg-gray-500 cursor-not-allowed" : "bg-[#296CF2] hover:bg-[#3D8BF2]"
+          } text-white px-6 py-3 rounded-full font-semibold transition`}
       >
         {loading ? "Enviando..." : "Enviar Mensaje"}
       </button>
 
       {status && (
         <p
-          className={`text-sm p-3 rounded ${
-            status.includes("✅")
+          className={`text-sm p-3 rounded ${status.includes("✅")
               ? "bg-green-100 text-green-700"
               : status.includes("❌")
-              ? "bg-red-100 text-red-700"
-              : "bg-yellow-100 text-yellow-700"
-          }`}
+                ? "bg-red-100 text-red-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
         >
           {status}
         </p>
