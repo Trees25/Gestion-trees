@@ -30,12 +30,12 @@ const Portfolio = () => {
       link: "https://kg-portfolio-nu.vercel.app/",
     },
     {
-      src: "/assets/certibankos.png",
-      link: "https://certibankos.com",
-    },
-    {
       src: "/assets/anti-robo-auto.png",
       link: "",
+    },
+    {
+      src: "/assets/certibankos.png",
+      link: "https://certibankos.com",
     },
   ]}
               isOpen={openFolder === 1}
