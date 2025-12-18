@@ -16,24 +16,42 @@ const darkenColor = (hex, percent) => {
   r = Math.max(0, Math.min(255, Math.floor(r * (1 - percent))));
   g = Math.max(0, Math.min(255, Math.floor(g * (1 - percent))));
   b = Math.max(0, Math.min(255, Math.floor(b * (1 - percent))));
-  return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+  return (
+    '#' +
+    ((1 << 24) + (r << 16) + (g << 8) + b)
+      .toString(16)
+      .slice(1)
+      .toUpperCase()
+  );
 };
 
-const Folder = ({ color = '#296cf2', size = 1, images = [], className = '', title = '', isOpen = false, onToggle= () => {} }) => {
+const Folder = ({
+  color = '#296cf2',
+  size = 1,
+  images = [],
+  className = '',
+  title = '',
+  isOpen = false,
+  onToggle = () => {}
+}) => {
   const maxItems = 3;
   const papers = images.slice(0, maxItems);
   while (papers.length < maxItems) {
     papers.push(null);
   }
 
-  const [paperOffsets, setPaperOffsets] = useState(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+  const [paperOffsets, setPaperOffsets] = useState(
+    Array.from({ length: maxItems }, () => ({ x: 0, y: 0 }))
+  );
 
   const folderBackColor = darkenColor(color, 0.08);
 
   const handleClick = () => {
     onToggle();
     if (isOpen) {
-      setPaperOffsets(Array.from({ length: maxItems }, () => ({ x: 0, y: 0 })));
+      setPaperOffsets(
+        Array.from({ length: maxItems }, () => ({ x: 0, y: 0 }))
+      );
     }
   };
 
@@ -45,17 +63,17 @@ const Folder = ({ color = '#296cf2', size = 1, images = [], className = '', titl
     const offsetX = (e.clientX - centerX) * 0.15;
     const offsetY = (e.clientY - centerY) * 0.15;
     setPaperOffsets(prev => {
-      const newOffsets = [...prev];
-      newOffsets[index] = { x: offsetX, y: offsetY };
-      return newOffsets;
+      const next = [...prev];
+      next[index] = { x: offsetX, y: offsetY };
+      return next;
     });
   };
 
   const handlePaperMouseLeave = (e, index) => {
     setPaperOffsets(prev => {
-      const newOffsets = [...prev];
-      newOffsets[index] = { x: 0, y: 0 };
-      return newOffsets;
+      const next = [...prev];
+      next[index] = { x: 0, y: 0 };
+      return next;
     });
   };
 
@@ -69,7 +87,10 @@ const Folder = ({ color = '#296cf2', size = 1, images = [], className = '', titl
   const scaleStyle = { transform: `scale(${size})` };
 
   return (
-    <div style={{ ...scaleStyle, display: 'inline-block', margin: '20px' }} className={className}>
+    <div
+      style={{ ...scaleStyle, display: 'inline-block', margin: '20px' }}
+      className={className}
+    >
       <div className={folderClassName} style={folderStyle} onClick={handleClick}>
         {isOpen && title && (
           <div
@@ -90,22 +111,40 @@ const Folder = ({ color = '#296cf2', size = 1, images = [], className = '', titl
             {title}
           </div>
         )}
+
         <div className="folder__back">
-          {papers.map((src, i) => (
-            <div
-              key={i}
-              className={`paper paper-${i + 1}`}
-              onMouseMove={e => handlePaperMouseMove(e, i)}
-              onMouseLeave={e => handlePaperMouseLeave(e, i)}
-              style={{
-                backgroundImage: src ? `url(${src})` : 'none',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                '--magnet-x': isOpen ? `${paperOffsets[i]?.x || 0}px` : '0px',
-                '--magnet-y': isOpen ? `${paperOffsets[i]?.y || 0}px` : '0px'
-              }}
-            />
-          ))}
+          {/* ✅ FIX REAL: sin <a>, click directo */}
+          {papers.map((item, i) => {
+            const src = typeof item === 'string' ? item : item?.src;
+            const link = typeof item === 'object' ? item?.link : null;
+
+            return (
+              <div
+                key={i}
+                className={`paper paper-${i + 1}`}
+                onMouseMove={e => handlePaperMouseMove(e, i)}
+                onMouseLeave={e => handlePaperMouseLeave(e, i)}
+                onClick={e => {
+                  if (!isOpen || !link) return;
+                  e.stopPropagation();
+                  window.open(link, '_blank');
+                }}
+                style={{
+                  backgroundImage: src ? `url(${src})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  cursor: isOpen && link ? 'pointer' : 'default',
+                  '--magnet-x': isOpen
+                    ? `${paperOffsets[i]?.x || 0}px`
+                    : '0px',
+                  '--magnet-y': isOpen
+                    ? `${paperOffsets[i]?.y || 0}px`
+                    : '0px'
+                }}
+              />
+            );
+          })}
+
           <div className="folder__front"></div>
           <div className="folder__front right"></div>
         </div>
