@@ -25,10 +25,19 @@ const Portfolio = () => {
             <Folder
               color="#296cf2"
               images={[
-                "/assets/kaiserjagger.png",
-                "/assets/certibankos.png",
-                "/assets/anti-robo-auto.png",
-              ]}
+    {
+      src: "/assets/kaiserjagger.png",
+      link: "https://kg-portfolio-nu.vercel.app/",
+    },
+    {
+      src: "/assets/certibankos.png",
+      link: "https://certibankos.com",
+    },
+    {
+      src: "/assets/anti-robo-auto.png",
+      link: "",
+    },
+  ]}
               isOpen={openFolder === 1}
               onToggle={() => handleToggle(1)}
             />
@@ -43,11 +52,20 @@ const Portfolio = () => {
              <div className="folder-wrapper">   {/* ← ESTE WRAPPER ES LA SOLUCIÓN */}
             <Folder
               color="#3d8bf2"
-              images={[
-                "/assets/molinaautos3.png",
-                "/assets/molinaautos2.png",
-                "/assets/molinaautos1.png",
-              ]}
+               images={[
+    {
+      src: "/assets/molinaautos3.png",
+      link: "https://molinaautos.com",
+    },
+    {
+      src: "/assets/molinaautos2.png",
+      link: "https://molinaautos.com",
+    },
+    {
+      src: "/assets/molinaautos1.png",
+      link: "https://molinaautos.com",
+    },
+  ]}
               isOpen={openFolder === 2}
               onToggle={() => handleToggle(2)}
             />
@@ -62,10 +80,19 @@ const Portfolio = () => {
             <Folder
               color="#5eadf2"
               images={[
-                "/assets/posventa3.png",
-                "/assets/posventa2.png",
-                "/assets/posventa1.png",
-              ]}
+    {
+      src: "/assets/posventa3.png",
+      link: "https://posventatrees.web.app/",
+    },
+    {
+      src: "/assets/posventa2.png",
+      link: "https://posventatrees.web.app/",
+    },
+    {
+      src: "/assets/posventa1.png",
+      link: "https://posventatrees.web.app/",
+    },
+  ]}
               isOpen={openFolder === 3}
               onToggle={() => handleToggle(3)}
             />
