@@ -26,7 +26,7 @@ const Portfolio = () => {
                 color="#296cf2"
                 images={[
                   {
-                    src: "/assets/kaiser-jagger.png",
+                    src: "/assets/kaiserjagger.png",
                     link: "https://kg-portfolio-nu.vercel.app/",
                   },
                   {
