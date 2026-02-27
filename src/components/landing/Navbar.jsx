@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import GooeyNav from "../reactbits/GooeyNav"; // Asegúrate de ajustar la ruta
 
 const Navbar = () => {
@@ -35,13 +35,15 @@ const Navbar = () => {
           onClick={handleLogoClick}
         />
         {/* Botón hamburguesa sólo en móvil */}
-        <button
-          className="md:hidden text-white text-3xl"
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-        >
-          ☰
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            className="md:hidden text-white text-3xl"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            ☰
+          </button>
+        </div>
 
         {/* GooeyNav sólo en desktop */}
         <div

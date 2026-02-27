@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { supabase } from "../../supabase";
+import { motion } from "framer-motion";
 
 const ContactForm = () => {
   const [name, setName] = useState("");
@@ -46,26 +48,26 @@ const ContactForm = () => {
     setStatus(""); // Limpia el estado anterior
 
     try {
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, message }),
-      });
+      // Guardar en Supabase como Cliente (Lead)
+      const { error: errInsert } = await supabase.from("clientes").insert([{
+        nombre: name,
+        email: email,
+        direccion: `MENSAJE WEB: ${message}`,
+        dni_cuit: 'LEAD',
+        tipo: 'lead'
+        // usuario_id será NULL si el usuario no está logueado, lo cual es correcto para leads
+      }]);
 
-      const data = await response.json();
+      if (errInsert) throw errInsert;
 
-      if (data.success) {
-        setStatus("✅ Tu mensaje fue enviado correctamente.");
-        setName("");
-        setEmail("");
-        setMessage("");
-        setErrors({}); // Limpia errores si el envío fue exitoso
-      } else {
-        setStatus("❌ Ocurrió un error al enviar el mensaje.");
-      }
+      setStatus("✅ ¡Gracias! Hemos recibido tu mensaje y nos contactaremos pronto.");
+      setName("");
+      setEmail("");
+      setMessage("");
+      setErrors({});
     } catch (error) {
-      console.error("Error de conexión:", error); // Log del error para depuración
-      setStatus("⚠️ Error de conexión con el servidor. Intenta de nuevo más tarde.");
+      console.error("Error al guardar lead:", error);
+      setStatus("⚠️ Hubo un problema al enviar tu mensaje. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -156,17 +158,35 @@ const ContactInfo = () => (
 );
 
 const Contact = () => (
-  <section id="contacto" className="py-16 bg-[#202E40] text-white">
+  <section id="contacto" className="py-20 bg-slate-950 text-white">
     <div className="container mx-auto px-4">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">Contáctanos</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-center mb-16"
+      >
+        <h2 className="text-4xl md:text-5xl font-bold mb-4">Contáctanos</h2>
+        <div className="w-24 h-1 bg-[#296CF2] mx-auto rounded-full"></div>
+      </motion.div>
 
-      <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/2">
+      <div className="flex flex-col md:flex-row gap-12 max-w-6xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="w-full md:w-1/2 bg-slate-900/50 p-8 rounded-3xl border border-white/5 backdrop-blur-sm"
+        >
           <ContactForm />
-        </div>
-        <div className="w-full md:w-1/2">
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="w-full md:w-1/2"
+        >
           <ContactInfo />
-        </div>
+        </motion.div>
       </div>
     </div>
   </section>
