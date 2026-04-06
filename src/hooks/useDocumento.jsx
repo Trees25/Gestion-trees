@@ -1,7 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../supabase";
+import { useProfile } from "./useProfile";
 
 export function useDocumento(tipo) {
+    const { profile } = useProfile();
     const [contador, setContador] = useState(1);
     const [filas, setFilas] = useState([{ descripcion: "", cantidad: 1, precio_unitario: 0 }]);
     const [listado, setListado] = useState([]);
@@ -12,11 +14,17 @@ export function useDocumento(tipo) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        cargarDatosIniciales();
-    }, [tipo]);
+        if (profile?.empresa_id) {
+            cargarDatosIniciales();
+        }
+    }, [tipo, profile]);
 
     const cargarDatosIniciales = async () => {
         setLoading(true);
+        if (!profile?.empresa_id) {
+            setLoading(false);
+            return;
+        }
         await Promise.all([
             listarDocumentos(),
             obtenerContador(),
@@ -28,15 +36,18 @@ export function useDocumento(tipo) {
     };
 
     const obtenerContador = async () => {
+        if (!profile?.empresa_id) return;
         const { count } = await supabase
             .from("documentos")
             .select("*", { count: "exact", head: true })
-            .eq("tipo", tipo);
+            .eq("tipo", tipo)
+            .eq("empresa_id", profile.empresa_id);
 
         setContador((count || 0) + 1);
     };
 
     const listarDocumentos = async () => {
+        if (!profile?.empresa_id) return;
         const { data, error } = await supabase
             .from("documentos")
             .select(`
@@ -45,31 +56,38 @@ export function useDocumento(tipo) {
                 documento_items(*)
             `)
             .eq("tipo", tipo)
+            .eq("empresa_id", profile.empresa_id)
             .order("creado_en", { ascending: false });
 
         if (!error) setListado(data);
     };
 
     const cargarClientes = async () => {
+        if (!profile?.empresa_id) return;
         const { data, error } = await supabase
             .from("clientes")
             .select("*")
+            .eq("empresa_id", profile.empresa_id)
             .order("nombre", { ascending: true });
         if (!error) setClientes(data);
     };
 
     const cargarPerfilesPago = async () => {
+        if (!profile?.empresa_id) return;
         const { data, error } = await supabase
             .from("perfiles_pago")
             .select("*")
+            .eq("empresa_id", profile.empresa_id)
             .order("alias", { ascending: true });
         if (!error) setPerfilesPago(data);
     };
 
     const cargarServicios = async () => {
+        if (!profile?.empresa_id) return;
         const { data, error } = await supabase
             .from("servicios")
             .select("*")
+            .eq("empresa_id", profile.empresa_id)
             .order("nombre", { ascending: true });
         if (!error) setServicios(data);
     };
@@ -96,6 +114,7 @@ export function useDocumento(tipo) {
         filas.reduce((t, f) => t + (f.cantidad || 0) * (f.precio_unitario || 0), 0);
 
     const guardarDocumento = async (data) => {
+        if (!profile?.empresa_id) return alert("No tenés una empresa asociada.");
         setLoading(true);
         try {
             const { error: errorDoc, data: doc } = await supabase
@@ -104,11 +123,17 @@ export function useDocumento(tipo) {
                     id: id || undefined,
                     tipo,
                     numero: data.numero || contador,
-                    cliente_id: data.cliente_id,
+                    // Si el cliente_id es string vacio u omitido, lo enviamos nulo.
+                    cliente_id: data.cliente_id || null, 
                     fecha: data.fecha,
                     perfil_pago_id: data.perfil_pago_id,
                     observaciones: data.observaciones,
-                    estado: data.estado || 'pendiente'
+                    // Si la BD de Supabase fue modificada para aceptar cliente_libre (texto), esto se guardará.
+                    // Si no, no afectará porque Supabase ignora campos que no existen o dará error si se configura estricto (mejor incluirlo por si lo agregan)
+                    ...(data.cliente_libre && { cliente_libre: data.cliente_libre }),
+                    estado: data.estado || 'pendiente',
+                    empresa_id: profile.empresa_id,
+                    creado_por: profile.user_id
                 })
                 .select()
                 .single();

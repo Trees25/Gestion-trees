@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
+import { useProfile } from "./useProfile";
 
 export function useDocumento(tipo) {
+  const { profile } = useProfile();
   const tabla = tipo === "recibo" ? "recibos" : "presupuestos";
   const tablaFilas = tipo === "recibo" ? "recibo_filas" : "presupuesto_filas";
 
@@ -15,23 +17,28 @@ export function useDocumento(tipo) {
   //  CARGA INICIAL
   // ---------------------------------------
 useEffect(() => {
-  listarDocumentos();
-  obtenerContador();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
+  if (profile?.empresa_id) {
+    listarDocumentos();
+    obtenerContador();
+  }
+}, [profile]);
 
   const obtenerContador = async () => {
+    if (!profile?.empresa_id) return;
     const { count } = await supabase
       .from(tabla)
-      .select("*", { count: "exact", head: true });
+      .select("*", { count: "exact", head: true })
+      .eq("empresa_id", profile?.empresa_id);
 
     setContador((count || 0) + 1);
   };
 
   const listarDocumentos = async () => {
+    if (!profile?.empresa_id) return;
     const { data, error } = await supabase
       .from(tabla)
       .select("*")
+      .eq("empresa_id", profile?.empresa_id)
       .order("creado_en", { ascending: false });
 
     if (!error) setListado(data);
@@ -63,6 +70,7 @@ useEffect(() => {
   // GUARDAR DOCUMENTO
   // ---------------------------------------
   const guardarDocumento = async (extra) => {
+    if (!profile?.empresa_id) return alert("No tenés una empresa asociada.");
     try {
       // ================================
       // 🔄 ACTUALIZAR DOCUMENTO EXISTENTE
@@ -112,6 +120,7 @@ useEffect(() => {
             cliente: extra.cliente,
             fecha: extra.fecha,
             creado_en: new Date().toISOString(),
+            empresa_id: profile?.empresa_id
           },
         ])
         .select()

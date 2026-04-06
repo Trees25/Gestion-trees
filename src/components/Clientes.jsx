@@ -2,22 +2,28 @@ import React, { useEffect, useState } from "react";
 import { supabase } from "../supabase";
 import Header from "./Header";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "../hooks/useProfile";
 
 export default function Clientes() {
     const [clientes, setClientes] = useState([]);
     const [loading, setLoading] = useState(false);
     const [nuevoCliente, setNuevoCliente] = useState({ nombre: "", dni_cuit: "", email: "", telefono: "", direccion: "" });
     const navigate = useNavigate();
+    const { profile, loading: profileLoading, error: profileError } = useProfile();
 
     useEffect(() => {
-        cargarClientes();
-    }, []);
+        if (profile?.empresa_id) {
+            cargarClientes();
+        }
+    }, [profile]);
 
     const cargarClientes = async () => {
+        if (!profile?.empresa_id) return;
         setLoading(true);
         const { data, error } = await supabase
             .from("clientes")
             .select("*")
+            .eq("empresa_id", profile.empresa_id)
             .order("creado_en", { ascending: false });
 
         if (!error) setClientes(data);
@@ -27,8 +33,12 @@ export default function Clientes() {
     const handleAgregar = async (e) => {
         e.preventDefault();
         if (!nuevoCliente.nombre) return alert("El nombre es obligatorio");
+        if (!profile?.empresa_id) return alert("No tenés una empresa asociada.");
 
-        const { error } = await supabase.from("clientes").insert([nuevoCliente]);
+        const { error } = await supabase.from("clientes").insert([{
+            ...nuevoCliente,
+            empresa_id: profile.empresa_id
+        }]);
         if (error) {
             alert("Error: " + error.message);
         } else {
@@ -55,6 +65,7 @@ export default function Clientes() {
                     <div>
                         <h2 className="text-3xl font-bold text-slate-800">Gestión de Clientes</h2>
                         <p className="text-slate-500">Administra tu base de datos de clientes</p>
+                        {profileError && <p className="text-red-500 text-sm font-bold mt-2">Error: {profileError}</p>}
                     </div>
                     <button
                         className="px-4 py-2 text-sm font-medium bg-white border border-slate-200 text-slate-700 rounded-lg shadow-sm hover:bg-slate-50 transition-all active:scale-95"

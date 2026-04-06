@@ -131,17 +131,17 @@ export default function Presupuesto() {
           <button onClick={() => navigate("/resumen")} className="px-4 py-2 bg-white border rounded-lg text-sm">Resumen</button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border p-8">
+        <div className="bg-white rounded-2xl shadow-sm border p-8 transition-colors">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-slate-800">Generar Presupuesto</h2>
-            <div className="bg-slate-100 px-4 py-2 rounded-lg font-bold">N° {contador}</div>
+            <div className="bg-slate-100 px-4 py-2 rounded-lg font-bold transition-colors">N° {contador}</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <label className="block text-sm font-medium mb-1">Cliente *</label>
+              <label className="block text-sm font-medium mb-1 transition-colors">Cliente *</label>
               <select
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-2 border rounded-lg bg-white transition-colors"
                 value={clienteId}
                 onChange={e => setClienteId(e.target.value)}
               >
@@ -150,15 +150,15 @@ export default function Presupuesto() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Fecha *</label>
-              <input type="date" className="w-full px-4 py-2 border rounded-lg" value={fecha} onChange={e => setFecha(e.target.value)} />
+              <label className="block text-sm font-medium mb-1 transition-colors">Fecha *</label>
+              <input type="date" className="w-full px-4 py-2 border rounded-lg bg-white transition-colors" value={fecha} onChange={e => setFecha(e.target.value)} />
             </div>
           </div>
 
-          <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          <div className="mb-8 p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 transition-colors">
             <label className="block text-xs font-bold text-slate-400 uppercase mb-2">Añadir desde Catálogo</label>
             <select
-              className="w-full md:w-1/2 px-4 py-2 border rounded-lg bg-white"
+              className="w-full md:w-1/2 px-4 py-2 border rounded-lg bg-white transition-colors"
               value=""
               onChange={(e) => {
                 const s = servicios.find(srv => srv.id === e.target.value);
@@ -181,7 +181,7 @@ export default function Presupuesto() {
 
           <table className="w-full mb-6 text-left">
             <thead>
-              <tr className="border-b text-slate-600">
+              <tr className="border-b text-slate-600 transition-colors">
                 <th className="py-2">Descripción</th>
                 <th className="py-2 w-24 text-center">Cant.</th>
                 <th className="py-2 w-32 text-right px-2">Precio Unit.</th>
@@ -190,15 +190,15 @@ export default function Presupuesto() {
             </thead>
             <tbody>
               {filas.map((f, i) => (
-                <tr key={i} className="border-b border-slate-50">
+                <tr key={i} className="border-b border-slate-50 transition-colors">
                   <td className="py-3">
-                    <input className="w-full border-none outline-none" placeholder="Item..." value={f.descripcion} onChange={e => actualizarFila(i, 'descripcion', e.target.value)} />
+                    <input className="w-full border-none outline-none bg-transparent" placeholder="Item..." value={f.descripcion} onChange={e => actualizarFila(i, 'descripcion', e.target.value)} />
                   </td>
                   <td className="py-3 text-center">
-                    <input className="w-20 text-center bg-slate-50 rounded" type="number" value={f.cantidad} onChange={e => actualizarFila(i, 'cantidad', e.target.value)} />
+                    <input className="w-20 text-center bg-slate-50 rounded border" type="number" value={f.cantidad} onChange={e => actualizarFila(i, 'cantidad', e.target.value)} />
                   </td>
                   <td className="py-3 text-right">
-                    <input className="w-28 text-right bg-slate-50 rounded px-2" type="number" value={f.precio_unitario} onChange={e => actualizarFila(i, 'precio_unitario', e.target.value)} />
+                    <input className="w-28 text-right bg-slate-50 rounded px-2 border" type="number" value={f.precio_unitario} onChange={e => actualizarFila(i, 'precio_unitario', e.target.value)} />
                   </td>
                   <td className="py-3 text-right">
                     <button onClick={() => eliminarFila(i)} className="text-red-400">×</button>
@@ -210,10 +210,10 @@ export default function Presupuesto() {
 
           <button onClick={agregarFila} className="text-blue-600 text-sm font-bold">+ Agregar fila</button>
 
-          <div className="mt-12 pt-8 border-t">
-            <h3 className="font-bold mb-4">💳 Datos de Pago</h3>
+          <div className="mt-12 pt-8 border-t transition-colors">
+            <h3 className="font-bold mb-4 transition-colors">💳 Datos de Pago</h3>
             <select
-              className="w-full px-4 py-2 border rounded-lg mb-6"
+              className="w-full px-4 py-2 border rounded-lg bg-white mb-6 transition-colors"
               value={perfilPagoId}
               onChange={e => setPerfilPagoId(e.target.value)}
             >
@@ -222,8 +222,8 @@ export default function Presupuesto() {
             </select>
           </div>
 
-          <div className="flex justify-between items-center mt-8 pt-8 border-t">
-            <div className="text-2xl font-bold">Total: <span className="text-blue-600">${calcularTotal().toFixed(2)}</span></div>
+          <div className="flex justify-between items-center mt-8 pt-8 border-t transition-colors">
+            <div className="text-2xl font-bold transition-colors">Total: <span className="text-blue-600">${calcularTotal().toFixed(2)}</span></div>
             <div className="flex gap-3">
               <button onClick={handleGuardar} disabled={loading} className="px-6 py-2 bg-emerald-600 text-white font-bold rounded-lg shadow-lg">
                 {loading ? "Guardando..." : "Guardar"}

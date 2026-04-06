@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import Header from "./Header";
+import { useProfile } from "../hooks/useProfile";
 
 export default function Resumen() {
   const [documentos, setDocumentos] = useState([]);
@@ -12,23 +13,35 @@ export default function Resumen() {
   const [filtroTipo, setFiltroTipo] = useState("todos");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
 
   useEffect(() => {
-    cargarDocumentos();
-  }, []);
+    if (profile?.empresa_id) {
+      cargarDocumentos();
+    }
+  }, [profile]);
 
   const cargarDocumentos = async () => {
+    if (!profile?.empresa_id) {
+      setLoading(false);
+      return;
+    }
+    
     setLoading(true);
     const { data, error } = await supabase
       .from("documentos")
       .select(`
         *,
         clientes(nombre, dni_cuit),
-        documento_items(*)
+        documento_items(*),
+        creador:perfiles_usuario!creado_por(nombre_usuario, apellido_usuario)
       `)
+      .eq("empresa_id", profile.empresa_id)
       .order("creado_en", { ascending: false });
 
-    if (!error) setDocumentos(data);
+    if (!error) {
+      setDocumentos(data || []);
+    }
     setLoading(false);
   };
 
@@ -69,10 +82,13 @@ export default function Resumen() {
 
     setLoading(true);
     try {
+      if (!profile?.empresa_id) throw new Error("No tenés una empresa asociada.");
+
       const { data: ultimosRecibos } = await supabase
         .from("documentos")
         .select("numero")
         .eq("tipo", "recibo")
+        .eq("empresa_id", profile.empresa_id)
         .order("numero", { ascending: false })
         .limit(1);
 
@@ -86,7 +102,9 @@ export default function Resumen() {
           cliente_id: presupuesto.cliente_id,
           perfil_pago_id: presupuesto.perfil_pago_id,
           observaciones: `Convertido desde Presupuesto #${presupuesto.numero}. ${presupuesto.observaciones || ""}`,
-          estado: "pendiente"
+          estado: "pendiente",
+          empresa_id: profile.empresa_id,
+          creado_por: profile.user_id
         })
         .select()
         .single();
@@ -179,7 +197,8 @@ export default function Resumen() {
       Cliente: doc.clientes?.nombre || 'S/N',
       Fecha: doc.fecha,
       Total: calcularTotal(doc.documento_items),
-      Estado: doc.estado.toUpperCase()
+      Estado: doc.estado.toUpperCase(),
+      Creador: doc.creador ? `${doc.creador.nombre_usuario} ${doc.creador.apellido_usuario}` : 'N/A'
     }));
 
     const ws = XLSX.utils.json_to_sheet(dataExcel);
@@ -203,6 +222,12 @@ export default function Resumen() {
           <div>
             <h2 className="text-3xl font-bold text-slate-800">Resumen General</h2>
             <p className="text-slate-500">Historial de documentos emitidos</p>
+            {profileError && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl">
+                <p className="font-bold text-sm">Estado del Perfil:</p>
+                <p className="text-xs">{profileError}</p>
+              </div>
+            )}
           </div>
           <div className="flex gap-3">
             <button
@@ -220,7 +245,6 @@ export default function Resumen() {
           </div>
         </div>
 
-        {/* Filtros */}
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-8 flex flex-col md:flex-row gap-4 items-center">
           <div className="relative flex-1 w-full">
             <input
@@ -253,40 +277,55 @@ export default function Resumen() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left font-medium">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-600">N°</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-600">Tipo</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-600">Cliente</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-600">Fecha</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-600 text-right">Total</th>
-                  <th className="py-4 px-6 text-sm font-semibold text-slate-600 text-right">Acciones</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Doc</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Cliente</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Fecha</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider">Responsable</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Monto</th>
+                  <th className="py-4 px-6 text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filtrados.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="py-4 px-6 text-sm font-medium text-slate-900">#{doc.numero}</td>
+                  <tr key={doc.id} className="hover:bg-slate-50 transition-colors group">
                     <td className="py-4 px-6">
-                      <span className={`px-2 py-1 text-[10px] font-bold uppercase rounded-md ${doc.tipo === 'presupuesto' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'
-                        }`}>
-                        {doc.tipo}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-bold text-slate-900 mb-0.5">#{doc.numero}</span>
+                        <span className={`w-fit px-2 py-0.5 text-[9px] font-bold uppercase rounded-md ${doc.tipo === 'presupuesto' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                          {doc.tipo}
+                        </span>
+                      </div>
                     </td>
-                    <td className="py-4 px-6 text-sm text-slate-600 font-medium">{doc.clientes?.nombre || 'S/N'}</td>
-                    <td className="py-4 px-6 text-sm text-slate-500">{new Date(doc.fecha).toLocaleDateString()}</td>
+                    <td className="py-4 px-6">
+                      <div className="text-sm text-slate-700 font-bold">{doc.clientes?.nombre || 'Consumidor Final'}</div>
+                      <div className="text-[10px] text-slate-400">{doc.clientes?.dni_cuit || ''}</div>
+                    </td>
+                    <td className="py-4 px-6 text-sm text-slate-500">{new Date(doc.fecha).toLocaleDateString('es-AR')}</td>
+                    <td className="py-4 px-6">
+                      {doc.creador ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-[10px] font-bold text-slate-500">
+                            {doc.creador.nombre_usuario?.[0]}{doc.creador.apellido_usuario?.[0]}
+                          </div>
+                          <span className="text-sm text-slate-600">{doc.creador.nombre_usuario}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-300">Sistema</span>
+                      )}
+                    </td>
                     <td className="py-4 px-6 text-sm font-bold text-slate-900 text-right">
-                      ${calcularTotal(doc.documento_items).toFixed(2)}
+                      ${calcularTotal(doc.documento_items).toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                     </td>
                     <td className="py-4 px-6 text-right space-x-2">
-                      <button onClick={() => compartirWhatsApp(doc)} className="text-xs text-emerald-500 font-bold hover:underline">WhatsApp</button>
-                      <button onClick={() => editarDocumento(doc)} className="text-xs text-blue-600 font-bold hover:underline">Editar</button>
-                      {doc.tipo === 'presupuesto' && (
-                        <button onClick={() => convertirARecibo(doc)} className="text-xs text-emerald-600 font-bold hover:underline">Convertir</button>
-                      )}
-                      <button onClick={() => descargarPDF(doc)} className="text-xs text-slate-600 font-bold hover:underline">PDF</button>
-                      <button onClick={() => eliminarDocumento(doc.id)} className="text-xs text-red-400 font-bold hover:underline">Eliminar</button>
+                      <div className="flex items-center justify-end gap-3">
+                        <button onClick={() => descargarPDF(doc)} className="p-2 bg-slate-50 text-slate-500 hover:bg-slate-100 rounded-lg transition-all" title="Descargar PDF">📄</button>
+                        <button onClick={() => compartirWhatsApp(doc)} className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg transition-all" title="WhatsApp">💬</button>
+                        <button onClick={() => editarDocumento(doc)} className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-all" title="Editar">✏️</button>
+                        <button onClick={() => eliminarDocumento(doc.id)} className="p-2 bg-red-50 text-red-400 hover:bg-red-100 rounded-lg transition-all" title="Eliminar">🗑️</button>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -2,44 +2,66 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import { supabase } from "../supabase";
+import { useProfile } from "../hooks/useProfile";
 
 export default function Admin() {
   const navigate = useNavigate();
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
   const [stats, setStats] = useState({ budgets: 0, receipts: 0, clients: 0 });
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (profile?.empresa_id) {
+      fetchStats();
+    }
+  }, [profile]);
 
   const fetchStats = async () => {
-    const { count: budCount } = await supabase.from("documentos").select("*", { count: "exact", head: true }).eq("tipo", "presupuesto");
-    const { count: recCount } = await supabase.from("documentos").select("*", { count: "exact", head: true }).eq("tipo", "recibo");
-    const { count: cliCount } = await supabase.from("clientes").select("*", { count: "exact", head: true });
+    const { count: budgets } = await supabase.from("documentos").select("*", { count: "exact", head: true }).eq("tipo", "presupuesto").eq("empresa_id", profile.empresa_id);
+    const { count: receipts } = await supabase.from("documentos").select("*", { count: "exact", head: true }).eq("tipo", "recibo").eq("empresa_id", profile.empresa_id);
+    const { count: clients } = await supabase.from("clientes").select("*", { count: "exact", head: true }).eq("empresa_id", profile.empresa_id);
 
-    setStats({
-      budgets: budCount || 0,
-      receipts: recCount || 0,
-      clients: cliCount || 0
-    });
+    setStats({ budgets: budgets || 0, receipts: receipts || 0, clients: clients || 0 });
   };
 
-  const cards = [
-    { title: "Nuevo Presupuesto", desc: "Crear un nuevo presupuesto detallado.", icon: "📝", path: "/presupuesto", color: "blue" },
-    { title: "Crear Recibo", desc: "Emitir recibos de pago manuales.", icon: "💵", path: "/recibo", color: "emerald" },
-    { title: "Ver Resumen", desc: "Historial de documentos y estados.", icon: "📋", path: "/resumen", color: "amber" },
-    { title: "Gestión de Clientes", desc: "Administrar base de datos de clientes.", icon: "👥", path: "/clientes", color: "indigo" },
-    { title: "Cuentas de Pago", desc: "Configurar CBU, Alias y Bancos.", icon: "🏦", path: "/perfiles", color: "purple" },
-    { title: "Catálogo", desc: "Servicios y precios frecuentes.", icon: "📦", path: "/catalogo", color: "pink" },
-    { title: "Estacísticas", desc: "Gráficos de facturación mensual.", icon: "📈", path: "/estadisticas", color: "rose" },
+  const adminCards = [
+    { title: "Presupuesto", desc: "Crear nuevo presupuesto", icon: "📄", color: "blue", path: "/presupuesto" },
+    { title: "Recibo", desc: "Registrar un pago/recibo", icon: "💰", color: "emerald", path: "/recibo" },
+    { title: "Resumen", desc: "Ver historial y estados", icon: "📊", color: "indigo", path: "/resumen" },
+    { title: "Clientes", desc: "Administrar base de clientes", icon: "👥", color: "rose", path: "/clientes" },
+    { title: "Catálogo", desc: "Servicios y precios", icon: "📦", color: "amber", path: "/catalogo" },
+    { title: "Cuentas", desc: "Perfiles de pago y CBU", icon: "💳", color: "cyan", path: "/perfiles" },
   ];
 
+  if (profileLoading) return <div className="p-8 text-center">Cargando...</div>;
+
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 pb-12">
       <Header />
-      <main className="max-w-6xl mx-auto px-4 pb-12">
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold text-slate-800">Panel de Control</h1>
-          <p className="text-slate-500">Bienvenido al sistema de gestión de Trees</p>
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-800">Panel de Control</h2>
+            <p className="text-slate-500">
+              Bienvenido, {
+                (profile?.nombre_usuario && profile?.apellido_usuario) 
+                  ? `${profile.nombre_usuario} ${profile.apellido_usuario}` 
+                  : (profile?.nombre_usuario || profile?.email || 'Usuario')
+              }
+            </p>
+          </div>
+          {profile?.empresa_id && (
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => navigate("/perfil-usuario")}
+                className="px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-xl text-sm font-bold shadow-sm hover:bg-slate-50 transition-all active:scale-95 flex items-center gap-2"
+              >
+                👤 Mi Perfil
+              </button>
+              <div className="px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-xl">
+                <span className="text-emerald-700 font-bold text-sm">Equipo: Trees</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Stats Row */}
@@ -49,14 +71,13 @@ export default function Admin() {
           <StatCard label="Clientes" value={stats.clients} color="indigo" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cards.map((card, idx) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {adminCards.map((card, idx) => (
             <div
               key={idx}
               className="group relative bg-white p-6 rounded-2xl shadow-sm border border-slate-100 cursor-pointer overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:scale-[0.98]"
               onClick={() => navigate(card.path)}
             >
-              <div className={`absolute top-0 right-0 w-24 h-24 bg-${card.color}-50 rounded-full -mr-12 -mt-12 transition-transform group-hover:scale-110`} />
               <div className="relative">
                 <div className="text-3xl mb-4 group-hover:scale-110 transition-transform duration-300">{card.icon}</div>
                 <h3 className="text-lg font-bold text-slate-800 mb-1">{card.title}</h3>
@@ -65,7 +86,7 @@ export default function Admin() {
             </div>
           ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

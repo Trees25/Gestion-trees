@@ -11,6 +11,8 @@ import Clientes from "./components/Clientes";
 import Perfiles from "./components/Perfiles";
 import Catalogo from "./components/Catalogo";
 import Estadisticas from "./components/Estadisticas";
+import ClientesPosventa from "./components/ClientesPosventa";
+import PerfilUsuario from "./components/PerfilUsuario";
 
 function App() {
   return (
@@ -25,6 +27,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Inicio />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/perfil-usuario"
+            element={
+              <PrivateRoute>
+                <PerfilUsuario />
               </PrivateRoute>
             }
           />
@@ -81,6 +91,14 @@ function App() {
             element={
               <PrivateRoute>
                 <Estadisticas />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/clientes-posventa"
+            element={
+              <PrivateRoute>
+                <ClientesPosventa />
               </PrivateRoute>
             }
           />
