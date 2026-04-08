@@ -99,12 +99,13 @@ export default function Clientes() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
                                     <input
-                                        type="email"
+                                        type="text"
                                         className="w-full px-4 py-2 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500/20"
-                                        value={nuevoCliente.email}
-                                        onChange={e => setNuevoCliente({ ...nuevoCliente, email: e.target.value })}
+                                        value={nuevoCliente.telefono}
+                                        onChange={e => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })}
+                                        placeholder="Ej: 11 1234-5678"
                                     />
                                 </div>
                                 <button
@@ -126,7 +127,7 @@ export default function Clientes() {
                                         <tr className="bg-slate-50 border-b border-slate-200">
                                             <th className="py-4 px-6 text-sm font-semibold text-slate-600">Nombre</th>
                                             <th className="py-4 px-6 text-sm font-semibold text-slate-600">DNI/CUIT</th>
-                                            <th className="py-4 px-6 text-sm font-semibold text-slate-600">Email</th>
+                                            <th className="py-4 px-6 text-sm font-semibold text-slate-600">Teléfono</th>
                                             <th className="py-4 px-6 text-sm font-semibold text-slate-600 text-right">Acciones</th>
                                         </tr>
                                     </thead>
@@ -144,7 +145,7 @@ export default function Clientes() {
                                                     </div>
                                                 </td>
                                                 <td className="py-4 px-6 text-sm text-slate-500">{cli.dni_cuit || '-'}</td>
-                                                <td className="py-4 px-6 text-sm text-slate-500">{cli.email || '-'}</td>
+                                                <td className="py-4 px-6 text-sm text-slate-500">{cli.telefono || '-'}</td>
                                                 <td className="py-4 px-6 text-right">
                                                     <button
                                                         onClick={() => handleEliminar(cli.id)}
