@@ -43,7 +43,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-slate-900 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-10">
-          <img src="/assets/logo.png" alt="Logo" className="w-48 mx-auto mb-6 opacity-90" />
+          <img src="/assets/logo.png" alt="Logo" className="w-48 mx-auto mb-6 opacity-90 invert grayscale contrast-200 mix-blend-screen" />
           <h2 className="text-2xl font-bold text-white">Bienvenido de nuevo</h2>
           <p className="text-slate-400 mt-2">Ingresá tus credenciales para continuar</p>
         </div>

@@ -66,10 +66,9 @@ export default function PerfilUsuario() {
                             <h3 className="text-center font-bold text-slate-800 mb-1">
                                 {nombre ? `${nombre} ${apellido}` : "Usuario"}
                             </h3>
-                            <p className="text-center text-xs text-slate-400 break-all">{profile?.email || "Sin email registrado"}</p>
                             
                             <div className="mt-6 pt-6 border-t border-slate-100">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Cuenta Personal</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Empresa</p>
                                 <div className="px-3 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold flex items-center gap-2">
                                     🌲 Trees
                                 </div>
